@@ -62,6 +62,18 @@ export function renderQuickView(lang: Lang): string {
       )
       .join('')}</div>`,
   )}
+  ${section(
+    q.speakingTitle,
+    q.talks
+      .map(
+        (t) => `<article class="q-role">
+      <h3>${esc(t.event)} <span class="q-when">${esc(t.when)}</span></h3>
+      <p>${esc(t.desc)}</p>
+      <p>${t.links.map((l) => a(l.href, l.label)).join(' · ')}</p>
+    </article>`,
+      )
+      .join(''),
+  )}
   ${section(q.educationTitle, list(q.education))}
   ${section(q.certsTitle, list(q.certs))}
   ${section(q.awardsTitle, list(q.awards))}

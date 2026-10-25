@@ -35,6 +35,13 @@ export interface CvProject {
   link?: Link;
 }
 
+export interface CvTalk {
+  event: string;
+  when: string;
+  desc: string;
+  links: Link[];
+}
+
 export type RoomId = 'hub' | 'nav' | 'workshop' | 'training' | 'arcade' | 'vault' | 'trophy' | 'core' | 'logs' | 'stage' | 'corridor';
 
 export type ObjectId =
@@ -199,6 +206,8 @@ export interface Content {
     experience: CvRole[];
     projectsTitle: string;
     projects: CvProject[];
+    speakingTitle: string;
+    talks: CvTalk[];
     educationTitle: string;
     education: string[];
     certsTitle: string;

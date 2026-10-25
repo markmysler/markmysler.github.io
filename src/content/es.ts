@@ -572,6 +572,24 @@ export const es: Content = {
         link: { label: 'github.com/markmysler/desktop-ls', href: repo('desktop-ls') },
       },
     ],
+    speakingTitle: 'Charlas',
+    talks: [
+      {
+        event: 'Nerdearla Argentina 2026',
+        when: 'sep. 2026 · Centro Cultural Konex, Buenos Aires',
+        desc: '"Tu problema no necesita un LLM (y tu factura tampoco)", junto a Juan Ignacio Llaberia: cuándo el machine learning clásico le gana a los LLMs en costo y latencia, y cómo combinarlos en arquitecturas híbridas.',
+        links: [
+          { label: 'Grabación', href: NERDEARLA_VIDEO },
+          { label: 'Página del orador', href: NERDEARLA_SPEAKER },
+        ],
+      },
+      {
+        event: 'Ekoparty Miami 2026',
+        when: 'may. 2026 · Miami',
+        desc: 'Presentación en vivo de wpair-cli, mi escáner para la vulnerabilidad Bluetooth Whisper Pair (CVE-2025-36911), en el espacio de Cyber Tamago.',
+        links: [{ label: 'Agenda', href: EKOPARTY_SCHEDULE }],
+      },
+    ],
     educationTitle: 'Educación',
     education: [
       'Ingeniería en Informática, Universidad de Belgrano, Buenos Aires · mar. 2025 – 2029 (previsto)',

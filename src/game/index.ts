@@ -12,6 +12,9 @@ export function startGame(parent: HTMLElement, lang: Lang) {
       scene()?.releaseKeys();
       parent.querySelector('canvas')?.focus();
     },
+    onTravel: (room) => scene()?.travelTo(room),
+    onSafeOpen: () => scene()?.openSafe(),
+    onDash: () => scene()?.dash(),
   });
 
   const game = new Phaser.Game({
@@ -24,5 +27,7 @@ export function startGame(parent: HTMLElement, lang: Lang) {
     scene: [],
   });
   game.scene.add('station', StationScene, true, { ui, lang });
+  // Dev only: lets tests step frames while the tab is hidden and rAF is paused.
+  if (import.meta.env.DEV) Object.assign(window, { __game: game, __ui: ui });
   return game;
 }

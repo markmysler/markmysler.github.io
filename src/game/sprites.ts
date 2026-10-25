@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 
 /** Palette shared with the CC0 tileset, plus skin and hair for the avatar. */
-const PAL: Record<string, string> = {
+export const PAL: Record<string, string> = {
   k: '#1f1d2c',
   w: '#f3fff4',
   W: '#d3e9e1',
@@ -22,6 +22,10 @@ const PAL: Record<string, string> = {
   m: '#ff34c3',
   g: '#289c5c',
   r: '#df213f',
+  B: '#6b3d2e',
+  T: '#b27856',
+  x: '#6f76ae',
+  G: '#17432f',
 };
 
 export const COLORS = {
@@ -42,7 +46,7 @@ export const COLORS = {
 
 type Ctx = CanvasRenderingContext2D;
 
-function drawRows(ctx: Ctx, rows: string[], ox = 0, oy = 0) {
+export function drawRows(ctx: Ctx, rows: string[], ox = 0, oy = 0) {
   rows.forEach((row, y) => {
     for (let x = 0; x < row.length; x++) {
       const col = PAL[row[x]];
@@ -58,7 +62,7 @@ function rect(ctx: Ctx, x: number, y: number, w: number, h: number, col: string)
   ctx.fillRect(x, y, w, h);
 }
 
-function canvas(scene: Phaser.Scene, key: string, w: number, h: number, draw: (ctx: Ctx) => void) {
+export function canvas(scene: Phaser.Scene, key: string, w: number, h: number, draw: (ctx: Ctx) => void) {
   const tex = scene.textures.createCanvas(key, w, h)!;
   draw(tex.getContext());
   tex.refresh();
@@ -67,7 +71,7 @@ function canvas(scene: Phaser.Scene, key: string, w: number, h: number, draw: (c
 
 // ---------- Avatar (16x24, 9 frames: down, up, side × idle/stepA/stepB) ----------
 
-const HEAD_DOWN = [
+export const HEAD_DOWN = [
   '.....kkkkkk.....',
   '....khhhhhhk....',
   '...khhhhhhhhk...',
@@ -78,7 +82,7 @@ const HEAD_DOWN = [
   '....kssssssk....',
   '.....kssssk.....',
 ];
-const BODY_DOWN = [
+export const BODY_DOWN = [
   '...kkjjwwjjkk...',
   '..kjjjjwwjjjjk..',
   '..kjJjjwwjjJjk..',
@@ -158,51 +162,9 @@ function avatarFrames(): string[][] {
   ];
 }
 
-// ---------- 12x12 machine icons ----------
+// ---------- 12x12 icons for the pipeline machines ----------
 
 const ICONS: Record<string, string[]> = {
-  guide: [
-    '............',
-    '...yyyyyy...',
-    '..yy....yy..',
-    '........yy..',
-    '......yyy...',
-    '.....yy.....',
-    '.....yy.....',
-    '............',
-    '.....yy.....',
-    '.....yy.....',
-    '............',
-    '............',
-  ],
-  about: [
-    '............',
-    '....cccc....',
-    '...cccccc...',
-    '...cccccc...',
-    '....cccc....',
-    '............',
-    '..cccccccc..',
-    '.cccccccccc.',
-    '.cccccccccc.',
-    '.cccccccccc.',
-    '............',
-    '............',
-  ],
-  directory: [
-    '............',
-    '.ooo....ooo.',
-    '.ooo....ooo.',
-    '.oooooooooo.',
-    '.ooo....ooo.',
-    '....o.......',
-    '....o.......',
-    '..ooooo.....',
-    '..ooooo.....',
-    '..ooooo.....',
-    '............',
-    '............',
-  ],
   eventbridge: [
     '....kkkk....',
     '..kkwwwwkk..',
@@ -331,7 +293,115 @@ const ICONS: Record<string, string[]> = {
   ],
 };
 
-export const ICON_KEYS = Object.keys(ICONS);
+/** Small pickups and props drawn from rows. */
+const ROW_SPRITES: Record<string, string[]> = {
+  compass: [
+    '....kkkkkk....',
+    '..kkwwwwwwkk..',
+    '.kwwwwrwwwwwk.',
+    '.kwwwwrrwwwwk.',
+    'kwwwwwrrwwwwwk',
+    'kwwwwrrrwwwwwk',
+    'kwwwwwkkwwwwwk',
+    'kwwwwwbbbwwwwk',
+    'kwwwwwwbbwwwwk',
+    '.kwwwwwbwwwwk.',
+    '.kwwwwwbwwwwk.',
+    '..kkwwwwwwkk..',
+    '....kkkkkk....',
+  ],
+  case: [
+    '..kkkkkkkkkk..',
+    '.krrrrrrrrrrk.',
+    'krrrrrrrrrrrrk',
+    'krrrrryyrrrrrk',
+    'kkkkkkyykkkkkk',
+    'kwwwwwyywwwwwk',
+    'kwwwwwwwwwwwwk',
+    '.kwwwwwwwwwwk.',
+    '..kkkkkkkkkk..',
+  ],
+  chip: [
+    '..k.k.k.k...',
+    '.kkkkkkkkk..',
+    'kkgggggggkk.',
+    '.kgcgggcgk..',
+    'kkgggcgggkk.',
+    '.kgcgggcgk..',
+    'kkgggggggkk.',
+    '.kkkkkkkkk..',
+    '..k.k.k.k...',
+  ],
+  robotkit: [
+    '....kk......',
+    '....rr......',
+    '.kkkkkkkkkk.',
+    '.kllllllllk.',
+    '.klcllllclk.',
+    '.kllllllllk.',
+    '.kllkkkkllk.',
+    '.kllllllllk.',
+    '.kkkkkkkkkk.',
+    '..knk..knk..',
+    '..kkk..kkk..',
+  ],
+  logbook: [
+    '.kkkkkkkkkk.',
+    '.kooooooook.',
+    '.kowwwwwwok.',
+    '.kooooooook.',
+    '.kooyyyyook.',
+    '.kooooooook.',
+    '.kooooooook.',
+    '.kooooooook.',
+    '.kkkkkkkkkk.',
+  ],
+  studentid: [
+    'kkkkkkkkkkkkkk',
+    'kbbbbbbbbbbbbk',
+    'kbwwwbbbbbbbbk',
+    'kbwhwbwwwwwwbk',
+    'kbwswbbbbbbbbk',
+    'kbwwwbwwwwbbbk',
+    'kbbbbbbbbbbbbk',
+    'kkkkkkkkkkkkkk',
+  ],
+  medal: [
+    '..rr..rr..',
+    '..rr..rr..',
+    '...rrrr...',
+    '....rr....',
+    '...kkkk...',
+    '..kyyyyk..',
+    '.kyyYyyyk.',
+    '.kyYYYyyk.',
+    '.kyyYyyyk.',
+    '..kyyyyk..',
+    '...kkkk...',
+  ],
+  certificate: [
+    'kkkkkkkkkkkkkk',
+    'kwwwwwwwwwwwwk',
+    'kwllllllllllwk',
+    'kwwwwwwwwwwwwk',
+    'kwllllllllwwwk',
+    'kwwwwwwwwwwwwk',
+    'kwllllllwwrrwk',
+    'kwwwwwwwwwrrwk',
+    'kkkkkkkkkkkkkk',
+  ],
+  robot: [
+    '..kkkkkkkk..',
+    '.kllllllllk.',
+    'kkllcllcllkk',
+    'kkllllllllkk',
+    'kkllllllllkk',
+    '.kllkkkkllk.',
+    '.kllllllllk.',
+    '..kkkkkkkk..',
+  ],
+};
+
 
 /** Generates every custom texture. Call once from the scene's create(). */
 export function makeTextures(scene: Phaser.Scene) {
@@ -345,25 +415,6 @@ export function makeTextures(scene: Phaser.Scene) {
   for (const [key, rows] of Object.entries(ICONS)) {
     canvas(scene, `icon-${key}`, 12, 12, (ctx) => drawRows(ctx, rows));
   }
-
-  // Sealed door, 64x32 (rotated for vertical doors)
-  canvas(scene, 'door', 64, 32, (ctx) => {
-    rect(ctx, 0, 0, 64, 32, 'k');
-    rect(ctx, 2, 2, 60, 28, 'd');
-    for (let x = 0; x < 64; x += 8) {
-      rect(ctx, x, 0, 4, 4, 'o');
-      rect(ctx, x + 4, 0, 4, 4, 'j');
-      rect(ctx, x, 28, 4, 4, 'o');
-      rect(ctx, x + 4, 28, 4, 4, 'j');
-    }
-    rect(ctx, 6, 8, 24, 16, 'n');
-    rect(ctx, 34, 8, 24, 16, 'n');
-    rect(ctx, 6, 8, 24, 2, 'l');
-    rect(ctx, 34, 8, 24, 2, 'l');
-    rect(ctx, 31, 4, 2, 24, 'k');
-    rect(ctx, 26, 13, 4, 6, 'r');
-    rect(ctx, 34, 13, 4, 6, 'r');
-  });
 
   // Conveyor belt tile, 32x32; the scene scrolls it
   canvas(scene, 'belt', 32, 32, (ctx) => {
@@ -393,67 +444,6 @@ export function makeTextures(scene: Phaser.Scene) {
     drawRows(ctx, ['......g', '.....gg', 'g...gg.', 'gg.gg..', '.ggg...', '..g....']),
   );
   canvas(scene, 'link', 6, 6, (ctx) => drawRows(ctx, ['.cc...', 'c..c..', 'c..cc.', '.cc..c', '...c.c', '....c.']));
-
-  // Table base, 64x32
-  canvas(scene, 'table', 64, 32, (ctx) => {
-    rect(ctx, 0, 6, 64, 26, 'k');
-    rect(ctx, 2, 8, 60, 14, 'l');
-    rect(ctx, 2, 22, 60, 8, 'n');
-    rect(ctx, 6, 24, 52, 2, 'd');
-  });
-  canvas(scene, 'blueprint', 52, 12, (ctx) => {
-    rect(ctx, 0, 0, 52, 12, 'j');
-    for (let x = 3; x < 52; x += 6) rect(ctx, x, 0, 1, 12, 'J');
-    for (let y = 3; y < 12; y += 4) rect(ctx, 0, y, 52, 1, 'J');
-    rect(ctx, 6, 3, 14, 5, 'w');
-    rect(ctx, 7, 4, 12, 3, 'j');
-    rect(ctx, 26, 4, 18, 1, 'w');
-    rect(ctx, 26, 7, 12, 1, 'w');
-  });
-
-  // Access gate, 32x48
-  canvas(scene, 'pillar', 32, 48, (ctx) => {
-    rect(ctx, 4, 0, 24, 48, 'k');
-    rect(ctx, 6, 2, 20, 30, 'l');
-    rect(ctx, 6, 32, 20, 14, 'n');
-    drawRows(
-      ctx,
-      ['..cccccc..', '.cccccccc.', '.ccckkccc.', '.ccckkccc.', '.cccckccc.', '..cccccc..', '...cccc...', '....cc....'],
-      11,
-      10,
-    );
-  });
-
-  // Database stack, 64x64
-  canvas(scene, 'database', 64, 64, (ctx) => {
-    for (let i = 0; i < 3; i++) {
-      const y = 6 + i * 18;
-      rect(ctx, 6, y, 52, 18, 'k');
-      rect(ctx, 8, y + 2, 48, 6, 'l');
-      rect(ctx, 8, y + 8, 48, 8, 'n');
-      rect(ctx, 12, y + 11, 3, 2, i === 1 ? 'g' : 'c');
-      rect(ctx, 17, y + 11, 3, 2, 'g');
-      rect(ctx, 22, y + 11, 3, 2, i === 2 ? 'o' : 'g');
-    }
-    rect(ctx, 6, 60, 52, 4, 'd');
-  });
-
-  // Comms pod, 32x48
-  canvas(scene, 'comms', 32, 48, (ctx) => {
-    rect(ctx, 15, 0, 2, 10, 'k');
-    rect(ctx, 14, 0, 4, 3, 'r');
-    rect(ctx, 4, 10, 24, 38, 'k');
-    rect(ctx, 6, 12, 20, 18, 'l');
-    rect(ctx, 6, 30, 20, 16, 'o');
-    rect(ctx, 6, 30, 20, 2, 'y');
-    rect(ctx, 9, 15, 14, 12, 'w');
-    drawRows(
-      ctx,
-      ['kkkkkkkkkkkk', 'kk........kk', 'k.k......k.k', 'k..k....k..k', 'k...kkkk...k', 'k..........k', 'kkkkkkkkkkkk'],
-      10,
-      17,
-    );
-  });
 
   // Collectibles
   canvas(scene, 'trophy', 16, 20, (ctx) =>
@@ -504,6 +494,36 @@ export function makeTextures(scene: Phaser.Scene) {
       '.....k.....',
     ]),
   );
+  for (const [key, rows] of Object.entries(ROW_SPRITES)) {
+    canvas(scene, key, rows[0].length, rows.length, (ctx) => drawRows(ctx, rows));
+  }
+
   canvas(scene, 'dot', 4, 4, (ctx) => rect(ctx, 0, 0, 4, 4, 'y'));
   canvas(scene, 'star', 1, 1, (ctx) => rect(ctx, 0, 0, 1, 1, 'W'));
+}
+
+/**
+ * The avatar's front frame as ASCII art: each pixel's brightness picks a character,
+ * doubled horizontally because characters are about twice as tall as they are wide.
+ */
+export function avatarAscii(): string {
+  // Light text on a dark panel, so brighter pixels get denser characters.
+  const ramp = ' .:-=+*#%@';
+  const luma = (hex: string) => {
+    const n = parseInt(hex.slice(1), 16);
+    return (0.2126 * (n >> 16) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255)) / 255;
+  };
+  return avatarFrames()[0]
+    .slice(3)
+    .map((row) =>
+      [...row]
+        .map((ch) => {
+          const col = PAL[ch];
+          const c = col ? ramp[Math.max(1, Math.round(luma(col) * (ramp.length - 1)))] : ' ';
+          return c + c;
+        })
+        .join('')
+        .trimEnd(),
+    )
+    .join('\n');
 }

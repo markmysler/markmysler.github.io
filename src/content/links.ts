@@ -6,6 +6,7 @@ export const GITHUB = 'https://github.com/markmysler';
 export const PUNTO_MEDIO = 'https://puntomedio.org';
 export const PATHFINDER = 'https://markmysler.github.io/pathfinder/';
 export const POKEDEX = 'https://pokedex-next-rho.vercel.app';
+export const SNAKE_DEMO = 'https://markmysler.github.io/snake-ai/';
 export const repo = (name: string) => `${GITHUB}/${name}`;
 
 export const cvHref = (lang: Lang) => `/cv/Mark-Mysler-CV-${lang.toUpperCase()}.pdf`;

@@ -1,32 +1,24 @@
 import Phaser from 'phaser';
 import { content } from '../content';
-import type { Lang, ObjectId } from '../content/types';
+import type { Lang, ObjectId, RoomId } from '../content/types';
 import type { UI } from '../ui/ui';
 import { astar, type Cell } from './astar';
-import {
-  BELT_X0,
-  BELT_X1,
-  BELT_Y,
-  MAP_H,
-  MAP_W,
-  OBJECTS,
-  PICKUPS,
-  PIPELINE,
-  SPAWN,
-  TILE,
-  isFloor,
-  isWalkable,
-  objectAt,
-  roomOf,
-  tileData,
-  type StationObject,
-} from './map';
+import { RaceDemo, RobotDemo, SnakeDemo, type Demo } from './demos';
+import { paintStation } from './floors';
+import { makeProps } from './props';
 import { COLORS, makeTextures } from './sprites';
+import { TILE, buildWorld, type StationObject, type TiledMap, type World } from './world';
 
-const SPEED = 96;
+const SPEED = 150;
+const DASH_MULT = 3.2;
+const DASH_TIME = 0.16;
+const DASH_COOLDOWN = 0.5;
 const BELT_SPEED = 40;
 const SPAWN_EVERY = 1600;
 const CLUSTER_TINTS = [COLORS.cyan, COLORS.magenta, COLORS.yellow];
+/** Avatar scale. With even camera zooms, 1.5 still lands on whole screen pixels. */
+const PLAYER_SCALE = 1.5;
+const PIPELINE: ObjectId[] = ['eventbridge', 'sqs', 'lambda', 'clusters', 'llm', 'evals', 'wikidata', 'media', 'web'];
 
 type Facing = 'down' | 'up' | 'left' | 'right';
 
@@ -39,12 +31,10 @@ interface Article {
   stage: number;
 }
 
-/** Pixel x of the centre of pipeline machine i. */
-const machineX = (i: number) => (BELT_X0 + i * 2) * TILE + TILE / 2;
-
 export class StationScene extends Phaser.Scene {
   private ui!: UI;
   private lang!: Lang;
+  private world!: World;
   private player!: Phaser.GameObjects.Sprite;
   private facing: Facing = 'down';
   private keys!: Record<string, Phaser.Input.Keyboard.Key>;
@@ -57,11 +47,18 @@ export class StationScene extends Phaser.Scene {
   private tops = new Map<ObjectId, number>();
   private icons = new Map<ObjectId, Phaser.GameObjects.Image>();
   private pickups = new Map<string, Phaser.GameObjects.Image[]>();
-  private belt!: Phaser.GameObjects.TileSprite;
+  private demos: Demo[] = [];
+  private signs: [RoomId, Phaser.GameObjects.Text][] = [];
+  private safe: Phaser.GameObjects.Image | null = null;
+  private belt: Phaser.GameObjects.TileSprite | null = null;
+  private machineX: number[] = [];
   private articles: Article[] = [];
   private spawnTimer = 0;
   private motion = true;
   private motionTweens: Phaser.Tweens.Tween[] = [];
+  private dashLeft = 0;
+  private dashCooldown = 0;
+  private ghostTimer = 0;
 
   constructor() {
     super('station');
@@ -75,36 +72,53 @@ export class StationScene extends Phaser.Scene {
 
   preload() {
     this.load.image('tiles', '/assets/vendor/buch-scifi/scifitiles-sheet.png');
+    this.load.tilemapTiledJSON('station', '/assets/maps/station.tmj');
   }
 
   create() {
     makeTextures(this);
+    makeProps(this);
     const tiles = this.textures.get('tiles');
     tiles.add('wall-top', 0, 0, 80, 32, 32);
     tiles.add('face-plain', 0, 0, 112, 32, 16);
     tiles.add('face-console', 0, 32, 112, 32, 16);
     tiles.add('face-server', 0, 64, 112, 32, 16);
-    tiles.add('pad-blue', 0, 64, 0, 32, 32);
-    tiles.add('pad-red', 0, 64, 160, 32, 32);
+
+    this.world = buildWorld(this.cache.tilemap.get('station').data as TiledMap);
+    this.ui.attachWorld(this.world);
+    const { world } = this;
 
     this.cameras.main.setBackgroundColor(COLORS.void);
     this.addStars();
 
-    const map = this.make.tilemap({ data: tileData(), tileWidth: TILE, tileHeight: TILE });
-    const tileset = map.addTilesetImage('tiles', 'tiles', TILE, TILE, 0, 0)!;
-    map.createLayer(0, tileset, 0, 0)!.setDepth(-10);
+    // Each room's floor and walls are painted from the map's shapes; see floors.ts.
+    const signs = paintStation(this, world, world.decor);
+    for (const sign of signs) {
+      const text = this.add
+        .text(sign.x - sign.dx * 18, sign.y - sign.dy * 22, '', {
+          fontFamily: 'Silkscreen',
+          fontSize: '8px',
+          color: '#23428b',
+          backgroundColor: '#d3e9e1',
+          padding: { x: 3, y: 2 },
+          resolution: 4,
+        })
+        // Sideways exits put the label beside the arrow, the others under or over it
+        .setOrigin(sign.dx > 0 ? 1 : sign.dx < 0 ? 0 : 0.5, 0.5)
+        .setDepth(-4);
+      this.signs.push([sign.to, text]);
+    }
+    this.addLasers();
 
-    this.add.image(SPAWN.x * TILE, SPAWN.y * TILE, 'tiles', 'pad-blue').setOrigin(0).setDepth(-5);
 
-    this.belt = this.add
-      .tileSprite(BELT_X0 * TILE, BELT_Y * TILE, (BELT_X1 - BELT_X0 + 1) * TILE, TILE, 'belt')
-      .setOrigin(0)
-      .setDepth(BELT_Y * TILE + 1);
-
-    OBJECTS.forEach((o) => this.addObject(o));
+    world.objects.forEach((o) => this.addObject(o));
+    this.addBelt();
     this.addPickups();
 
-    this.player = this.add.sprite(SPAWN.x * TILE + TILE / 2, SPAWN.y * TILE + 20, 'avatar', 0).setOrigin(0.5, 1);
+    this.player = this.add
+      .sprite(world.spawn.x * TILE + TILE / 2, world.spawn.y * TILE + 20, 'avatar', 0)
+      .setOrigin(0.5, 1)
+      .setScale(PLAYER_SCALE);
     this.anims.create({ key: 'walk-down', frames: this.anims.generateFrameNumbers('avatar', { frames: [1, 0, 2, 0] }), frameRate: 8, repeat: -1 });
     this.anims.create({ key: 'walk-up', frames: this.anims.generateFrameNumbers('avatar', { frames: [4, 3, 5, 3] }), frameRate: 8, repeat: -1 });
     this.anims.create({ key: 'walk-side', frames: this.anims.generateFrameNumbers('avatar', { frames: [7, 6] }), frameRate: 6, repeat: -1 });
@@ -112,34 +126,97 @@ export class StationScene extends Phaser.Scene {
     this.prompt = this.add.image(0, 0, 'prompt').setOrigin(0.5, 1).setDepth(10_000).setVisible(false);
 
     const cam = this.cameras.main;
-    cam.setBounds(0, 0, MAP_W * TILE, MAP_H * TILE);
+    // Padding so rooms on the map edge are not hidden under the HUD and minimap.
+    cam.setBounds(-TILE * 2, -TILE * 3, (world.w + 4) * TILE, (world.h + 6) * TILE);
     cam.startFollow(this.player, true, 0.15, 0.15);
     cam.setRoundPixels(true);
     this.fitZoom();
     this.scale.on('resize', () => this.fitZoom());
 
     const kb = this.input.keyboard!;
-    this.keys = kb.addKeys('W,A,S,D,UP,DOWN,LEFT,RIGHT,E,SPACE,ENTER') as Record<string, Phaser.Input.Keyboard.Key>;
-    for (const k of ['E', 'SPACE', 'ENTER']) this.keys[k].on('down', () => this.interact());
+    // No capture: panels have text inputs, and the page itself never scrolls.
+    this.keys = kb.addKeys('W,A,S,D,UP,DOWN,LEFT,RIGHT,E,SPACE,ENTER', false) as Record<string, Phaser.Input.Keyboard.Key>;
+    for (const k of ['E', 'ENTER']) this.keys[k].on('down', () => this.interact());
+    this.keys.SPACE.on('down', () => this.dash());
     this.input.on('pointerdown', (p: Phaser.Input.Pointer) => this.onPointer(p));
 
+    this.setLang(this.lang);
     this.setMotion(this.motion);
   }
 
   setLang(lang: Lang) {
     this.lang = lang;
     for (const [id, text] of this.labels) text.setText(content[lang].labels[id] ?? '');
+    for (const [room, text] of this.signs) text.setText(content[lang].rooms[room]);
+    this.demos.forEach((d) => d.setLang(content[lang].demos));
   }
 
   setMotion(on: boolean) {
     this.motion = on;
     this.motionTweens.forEach((t) => (on ? t.resume() : t.pause()));
+    this.demos.forEach((d) => d.setMotion(on));
     this.articles.forEach((a) => a.box.destroy());
     this.articles = [];
-    if (!on) {
+    if (!on && this.machineX.length) {
       // A still life of the pipeline: one article at every other stage.
-      for (let i = 1; i < PIPELINE.length; i += 2) this.spawnArticle(machineX(i) + 16);
+      for (let i = 1; i < this.machineX.length; i += 2) this.spawnArticle(this.machineX[i] + 16);
     }
+  }
+
+  openSafe() {
+    this.safe?.setTexture('prop-safe-open');
+  }
+
+  /** Autopilot: walk to the walkable cell closest to the room's centre. */
+  travelTo(room: RoomId) {
+    const r = this.world.rooms.find((x) => x.id === room);
+    if (!r) return;
+    const cx = r.x + Math.floor(r.w / 2);
+    const cy = r.y + Math.floor(r.h / 2);
+    let goal: Cell | null = null;
+    for (let d = 0; d < Math.max(r.w, r.h) && !goal; d++) {
+      for (let y = cy - d; y <= cy + d && !goal; y++) {
+        for (let x = cx - d; x <= cx + d && !goal; x++) {
+          if (this.world.isWalkable(x, y) && this.world.roomAt[y][x] === room) goal = { x, y };
+        }
+      }
+    }
+    if (!goal) return;
+    const route = astar(this.cellOf(), goal, this.world.isWalkable, this.world.w);
+    if (route) {
+      this.setPath(route);
+      this.pending = null;
+    }
+  }
+
+  /** A short burst of speed in the direction you're moving or facing. */
+  dash() {
+    if (this.ui.isOpen() || this.dashCooldown > 0) return;
+    this.dashLeft = DASH_TIME;
+    this.dashCooldown = DASH_COOLDOWN;
+  }
+
+  private speed() {
+    return SPEED * (this.dashLeft > 0 ? DASH_MULT : 1);
+  }
+
+  /** Fading afterimages while dashing. */
+  private updateDash(dt: number) {
+    this.dashCooldown = Math.max(0, this.dashCooldown - dt);
+    if (this.dashLeft <= 0) return;
+    this.dashLeft -= dt;
+    this.ghostTimer -= dt;
+    if (this.ghostTimer > 0 || !this.motion) return;
+    this.ghostTimer = 0.03;
+    const ghost = this.add
+      .image(this.player.x, this.player.y, 'avatar', this.player.frame.name)
+      .setOrigin(0.5, 1)
+      .setScale(PLAYER_SCALE)
+      .setFlipX(this.player.flipX)
+      .setTint(COLORS.cyan)
+      .setAlpha(0.5)
+      .setDepth(this.player.depth - 0.5);
+    this.tweens.add({ targets: ghost, alpha: 0, duration: 220, onComplete: () => ghost.destroy() });
   }
 
   /** Called by the UI when a panel closes, so held keys don't leak into movement. */
@@ -151,16 +228,17 @@ export class StationScene extends Phaser.Scene {
 
   private fitZoom() {
     const { width, height } = this.scale.gameSize;
-    const zoom = Math.max(2, Math.floor(Math.min(width / 640, height / 360)));
-    this.cameras.main.setZoom(zoom);
+    const fit = Math.floor(Math.min(width / 640, height / 360));
+    this.cameras.main.setZoom(Math.max(2, fit - (fit % 2)));
   }
 
   private addStars() {
+    const { world } = this;
     const rng = new Phaser.Math.RandomDataGenerator(['station']);
-    for (let i = 0; i < 260; i++) {
-      const x = rng.between(0, MAP_W * TILE);
-      const y = rng.between(0, MAP_H * TILE);
-      if (isFloor(Math.floor(x / TILE), Math.floor(y / TILE))) continue;
+    for (let i = 0; i < 800; i++) {
+      const x = rng.between(-TILE * 2, (world.w + 2) * TILE);
+      const y = rng.between(-TILE * 3, (world.h + 3) * TILE);
+      if (world.isFloor(Math.floor(x / TILE), Math.floor(y / TILE))) continue;
       const star = this.add.image(x, y, 'star').setDepth(-20).setAlpha(rng.realInRange(0.3, 1));
       if (rng.frac() < 0.3) {
         this.motionTweens.push(
@@ -173,48 +251,44 @@ export class StationScene extends Phaser.Scene {
   private addObject(o: StationObject) {
     const px = o.x * TILE;
     const py = o.y * TILE;
-    const bottom = (o.y + o.h) * TILE;
-    const depth = bottom;
+    const w = o.w * TILE;
+    const h = o.h * TILE;
+    const bottom = py + h;
     let top = py;
+    const text = content[this.lang].demos;
 
-    if (o.sprite.kind === 'machine') {
-      // Wall machines stand on their tile and rise half a tile above it.
-      top = py - 16;
-      this.add.image(px, top, 'tiles', 'wall-top').setOrigin(0).setDepth(py + TILE);
-      this.add.image(px, py + 16, 'tiles', `face-${o.sprite.face}`).setOrigin(0).setDepth(py + TILE);
-      const icon = this.add.image(px + 16, top + 16, `icon-${o.sprite.icon}`).setDepth(py + TILE + 1);
-      this.icons.set(o.id, icon);
-    } else if (o.sprite.kind === 'image') {
-      const cx = px + (o.w * TILE) / 2;
-      if (o.sprite.angle) {
-        this.add.image(cx, py + (o.h * TILE) / 2, o.sprite.key).setAngle(o.sprite.angle).setDepth(depth);
-      } else {
-        const img = this.add.image(cx, bottom, o.sprite.key).setOrigin(0.5, 1).setDepth(depth);
-        top = bottom - img.height;
+    switch (o.sprite.kind) {
+      case 'machine': {
+        // Wall machines stand on their tile and rise half a tile above it.
+        top = py - 16;
+        this.add.image(px, top, 'tiles', 'wall-top').setOrigin(0).setDepth(py + TILE);
+        this.add.image(px, py + 16, 'tiles', `face-${o.sprite.face}`).setOrigin(0).setDepth(py + TILE);
+        const icon = this.add.image(px + 16, top + 16, `icon-${o.sprite.icon}`).setDepth(py + TILE + 1);
+        this.icons.set(o.id, icon);
+        if (PIPELINE.includes(o.id)) this.machineX[PIPELINE.indexOf(o.id)] = px + TILE / 2;
+        break;
       }
-    } else {
-      this.add.image(px, bottom, 'table').setOrigin(0, 1).setDepth(depth);
-      if (o.sprite.overlay === 'blueprint') {
-        this.add.image(px + 6, bottom - 24, 'blueprint').setOrigin(0).setDepth(depth + 1);
-      } else {
-        // Three perspectives on one story, as holographic bars.
-        CLUSTER_TINTS.forEach((color, i) => {
-          const bar = this.add
-            .rectangle(px + 14 + i * 14, bottom - 24, 8, 22, color, 0.75)
-            .setOrigin(0.5, 1)
-            .setDepth(depth + 1);
-          this.motionTweens.push(
-            this.tweens.add({ targets: bar, scaleY: 0.45 + i * 0.2, duration: 900 + i * 300, yoyo: true, repeat: -1, ease: 'Sine.inOut' }),
-          );
-        });
-        top = bottom - 50;
+      case 'prop': {
+        const key = o.id === 'safe' && this.ui.found.has('cc') ? 'prop-safe-open' : o.sprite.key;
+        const img = this.add.image(px + w / 2, bottom, key).setOrigin(0.5, 1).setDepth(bottom);
+        top = bottom - img.height;
+        if (o.id === 'safe') this.safe = img;
+        top = this.decorate(o.id, img, top);
+        break;
+      }
+      case 'demo': {
+        if (o.sprite.demo === 'race') this.demos.push(new RaceDemo(this, px, py, text));
+        if (o.sprite.demo === 'snake') this.demos.push(new SnakeDemo(this, px, py, w, h, text));
+        if (o.sprite.demo === 'robot') this.demos.push(new RobotDemo(this, px, py, w, h));
+        break;
       }
     }
 
     this.tops.set(o.id, top);
-    if (o.label) {
+    const name = content[this.lang].labels[o.id];
+    if (o.interactive && name !== undefined) {
       const label = this.add
-        .text(px + (o.w * TILE) / 2, top - 3, content[this.lang].labels[o.id] ?? '', {
+        .text(px + w / 2, top - 3, name, {
           fontFamily: 'Silkscreen',
           fontSize: '8px',
           color: '#d3e9e1',
@@ -228,12 +302,88 @@ export class StationScene extends Phaser.Scene {
     }
   }
 
+  /** Small animations on top of some props. Returns where the label should sit. */
+  private decorate(id: ObjectId, img: Phaser.GameObjects.Image, top: number): number {
+    const left = img.x - img.width / 2;
+    const bottom = img.y;
+    const loop = (tween: Phaser.Types.Tweens.TweenBuilderConfig) => this.motionTweens.push(this.tweens.add({ repeat: -1, ...tween }));
+    switch (id) {
+      case 'guide':
+        this.add.image(img.x, bottom - 3, 'prop-shadow').setDepth(bottom - 1);
+        img.y -= 4;
+        loop({ targets: img, y: img.y - 4, duration: 1100, yoyo: true, ease: 'Sine.inOut' });
+        return top - 8;
+      case 'pathfinder': {
+        const sweep = this.add.image(left + 16, top + 17, 'radar-sweep').setDepth(bottom + 1);
+        loop({ targets: sweep, angle: 360, duration: 2600 });
+        return top;
+      }
+      case 'mailbox': {
+        const light = this.add.rectangle(left + 26, top + 4, 3, 3, COLORS.red).setDepth(bottom + 1);
+        loop({ targets: light, alpha: 0.2, duration: 500, yoyo: true });
+        return top;
+      }
+      case 'asciify': {
+        const glow = this.add.rectangle(left + 16, top + 19, 18, 16, COLORS.green, 0.12).setDepth(bottom + 1);
+        loop({ targets: glow, alpha: 0.35, duration: 180, yoyo: true, repeatDelay: 900 });
+        return top;
+      }
+      case 'pokedex': {
+        // The cabinet's screen cycles through the game's colours.
+        const screen = this.add.rectangle(left + 16, top + 21, 16, 12, COLORS.cyan, 0.45).setDepth(bottom + 1);
+        this.motionTweens.push(
+          this.tweens.addCounter({
+            from: 0,
+            to: 3,
+            duration: 2400,
+            repeat: -1,
+            onUpdate: (t) => screen.setFillStyle(CLUSTER_TINTS[Math.floor(t.getValue() ?? 0) % 3], 0.45),
+          }),
+        );
+        return top;
+      }
+      case 'pmTable':
+        // Three perspectives on one story, as holographic bars over the projector.
+        CLUSTER_TINTS.forEach((color, i) => {
+          const bar = this.add
+            .rectangle(left + 20 + i * 12, top + 21, 8, 22, color, 0.7)
+            .setOrigin(0.5, 1)
+            .setDepth(bottom + 1);
+          loop({ targets: bar, scaleY: 0.45 + i * 0.2, duration: 900 + i * 300, yoyo: true, ease: 'Sine.inOut' });
+        });
+        return top - 2;
+      default:
+        return top;
+    }
+  }
+
+  /** Red laser lines across the vault's doorway. Purely for show: you walk straight through. */
+  private addLasers() {
+    for (const d of this.world.decor.filter((x) => x.kind === 'lasers')) {
+      for (let i = 0; i < 4; i++) {
+        const y = d.y * TILE + 6 + i * 7;
+        const glow = this.add.rectangle(d.x * TILE, y - 1, d.w * TILE, 4, COLORS.red, 0.25).setOrigin(0).setDepth(d.y * TILE + 30);
+        const beam = this.add.rectangle(d.x * TILE, y, d.w * TILE, 2, 0xff6b7d, 1).setOrigin(0).setDepth(d.y * TILE + 31);
+        this.motionTweens.push(this.tweens.add({ targets: [beam, glow], alpha: 0.2, duration: 300 + i * 130, yoyo: true, repeat: -1 }));
+      }
+    }
+  }
+
+  private addBelt() {
+    const { belt } = this.world;
+    if (!belt.w) return;
+    this.belt = this.add
+      .tileSprite(belt.x * TILE, belt.y * TILE, belt.w * TILE, TILE, 'belt')
+      .setOrigin(0)
+      .setDepth(belt.y * TILE + 1);
+  }
+
   private addPickups() {
-    for (const p of PICKUPS) {
+    for (const p of this.world.pickups) {
       if (this.ui.found.has(p.id)) continue;
       const cx = p.x * TILE + TILE / 2;
       const cy = p.y * TILE + TILE / 2;
-      const pad = this.add.image(p.x * TILE, p.y * TILE, 'tiles', p.id === 'keycard' ? 'pad-red' : 'pad-blue').setOrigin(0).setDepth(-5);
+      const pad = this.add.image(cx, cy + 9, 'pedestal').setDepth(-5);
       const item = this.add.image(cx, cy - 2, p.key).setDepth(p.y * TILE + TILE);
       this.motionTweens.push(this.tweens.add({ targets: item, y: cy - 7, duration: 800, yoyo: true, repeat: -1, ease: 'Sine.inOut' }));
       this.pickups.set(p.id, [pad, item]);
@@ -242,20 +392,20 @@ export class StationScene extends Phaser.Scene {
 
   // ---------- pipeline ----------
 
-  private spawnArticle(x = machineX(0)) {
-    const y = BELT_Y * TILE + 16;
+  private spawnArticle(x = this.machineX[0]) {
+    const y = this.world.belt.y * TILE + 16;
     const paper = this.add.image(0, 0, 'article');
     const marks = this.add.image(0, 0, 'marks').setVisible(false);
     const check = this.add.image(6, -8, 'check').setVisible(false);
     const link = this.add.image(-7, -7, 'link').setVisible(false);
-    const box = this.add.container(x, y, [paper, marks, link, check]).setDepth(BELT_Y * TILE + 2);
+    const box = this.add.container(x, y, [paper, marks, link, check]).setDepth(this.world.belt.y * TILE + 2);
     const article: Article = { box, paper, marks, check, link, stage: 0 };
     this.articles.push(article);
     this.advanceStages(article);
   }
 
   private advanceStages(a: Article) {
-    while (a.stage < PIPELINE.length - 1 && a.box.x >= machineX(a.stage + 1)) {
+    while (a.stage < PIPELINE.length - 1 && a.box.x >= this.machineX[a.stage + 1]) {
       a.stage++;
       const id = PIPELINE[a.stage];
       if (id === 'lambda' && this.motion) this.tweens.add({ targets: a.paper, y: -4, duration: 120, yoyo: true });
@@ -267,7 +417,7 @@ export class StationScene extends Phaser.Scene {
   }
 
   private updatePipeline(dt: number) {
-    if (!this.motion) return;
+    if (!this.motion || !this.belt || this.machineX.length < PIPELINE.length) return;
     this.belt.tilePositionX -= BELT_SPEED * dt;
     this.spawnTimer -= dt * 1000;
     if (this.spawnTimer <= 0) {
@@ -275,7 +425,7 @@ export class StationScene extends Phaser.Scene {
       this.spawnArticle();
       this.pulse('eventbridge');
     }
-    const end = machineX(PIPELINE.length - 1);
+    const end = this.machineX[PIPELINE.length - 1];
     this.articles = this.articles.filter((a) => {
       a.box.x += BELT_SPEED * dt;
       this.advanceStages(a);
@@ -299,22 +449,27 @@ export class StationScene extends Phaser.Scene {
   }
 
   private canStand(x: number, y: number) {
-    // Feet hitbox: 12x8 above the sprite's origin.
+    // Feet hitbox: 14x8 above the sprite's origin.
     const pts = [
-      [x - 6, y - 8],
-      [x + 6, y - 8],
-      [x - 6, y - 1],
-      [x + 6, y - 1],
+      [x - 7, y - 8],
+      [x + 7, y - 8],
+      [x - 7, y - 1],
+      [x + 7, y - 1],
     ];
-    return pts.every(([px, py]) => isWalkable(Math.floor(px / TILE), Math.floor(py / TILE)));
+    return pts.every(([px, py]) => this.world.isWalkable(Math.floor(px / TILE), Math.floor(py / TILE)));
   }
 
   private onPointer(p: Phaser.Input.Pointer) {
     if (this.ui.isOpen()) return;
-    const world = this.cameras.main.getWorldPoint(p.x, p.y);
-    const cell = { x: Math.floor(world.x / TILE), y: Math.floor(world.y / TILE) };
+    const { world } = this;
+    const pt = this.cameras.main.getWorldPoint(p.x, p.y);
+    const cell = { x: Math.floor(pt.x / TILE), y: Math.floor(pt.y / TILE) };
     const from = this.cellOf();
-    const obj = cell.x >= 0 && cell.y >= 0 && cell.x < MAP_W && cell.y < MAP_H ? objectAt[cell.y][cell.x] : null;
+    const inside = cell.x >= 0 && cell.y >= 0 && cell.x < world.w && cell.y < world.h;
+    let obj = inside ? world.objectAt[cell.y][cell.x] : null;
+    // Machines and tall props are drawn above their footprint; clicks there count too.
+    const below = !obj && cell.y + 1 < world.h && cell.x >= 0 && cell.x < world.w ? world.objectAt[cell.y + 1][cell.x] : null;
+    if (below && pt.y >= (this.tops.get(below.id) ?? Infinity)) obj = below;
 
     if (obj) {
       // Walk to the closest free tile next to the object, then open it.
@@ -323,8 +478,8 @@ export class StationScene extends Phaser.Scene {
         for (let x = obj.x; x < obj.x + obj.w; x++) {
           for (const [dx, dy] of [[0, 1], [0, -1], [1, 0], [-1, 0]]) {
             const n = { x: x + dx, y: y + dy };
-            if (!isWalkable(n.x, n.y)) continue;
-            const route = n.x === from.x && n.y === from.y ? [] : astar(from, n, isWalkable, MAP_W);
+            if (!world.isWalkable(n.x, n.y)) continue;
+            const route = n.x === from.x && n.y === from.y ? [] : astar(from, n, world.isWalkable, world.w);
             if (route && (!best || route.length < best.length)) best = route;
           }
         }
@@ -336,8 +491,8 @@ export class StationScene extends Phaser.Scene {
       }
       return;
     }
-    if (!isWalkable(cell.x, cell.y)) return;
-    const route = astar(from, cell, isWalkable, MAP_W);
+    if (!world.isWalkable(cell.x, cell.y)) return;
+    const route = astar(from, cell, world.isWalkable, world.w);
     if (route) {
       this.setPath(route);
       this.pending = null;
@@ -350,7 +505,7 @@ export class StationScene extends Phaser.Scene {
     this.pathDots = route.map((c) =>
       this.add
         .image(c.x * TILE + TILE / 2, c.y * TILE + TILE / 2, 'dot')
-        .setDepth(-4)
+        .setDepth(-1.5)
         .setAlpha(0.8),
     );
   }
@@ -390,8 +545,8 @@ export class StationScene extends Phaser.Scene {
     for (const [dx, dy] of order) {
       const x = c.x + dx;
       const y = c.y + dy;
-      if (x < 0 || y < 0 || x >= MAP_W || y >= MAP_H) continue;
-      if (objectAt[y][x]) return objectAt[y][x];
+      if (x < 0 || y < 0 || x >= this.world.w || y >= this.world.h) continue;
+      if (this.world.objectAt[y][x]) return this.world.objectAt[y][x];
     }
     return null;
   }
@@ -405,6 +560,8 @@ export class StationScene extends Phaser.Scene {
   update(_time: number, deltaMs: number) {
     const dt = Math.min(deltaMs, 50) / 1000;
     this.updatePipeline(dt);
+    this.demos.forEach((d) => d.update(dt));
+    this.updateDash(dt);
     if (this.ui.isOpen()) {
       this.player.anims.stop();
       return;
@@ -414,13 +571,19 @@ export class StationScene extends Phaser.Scene {
     let vx = (k.D.isDown || k.RIGHT.isDown ? 1 : 0) - (k.A.isDown || k.LEFT.isDown ? 1 : 0);
     let vy = (k.S.isDown || k.DOWN.isDown ? 1 : 0) - (k.W.isDown || k.UP.isDown ? 1 : 0);
 
+    if (!vx && !vy && this.dashLeft > 0 && !this.path.length) {
+      // Dashing from a standstill goes the way you're facing.
+      vx = this.facing === 'right' ? 1 : this.facing === 'left' ? -1 : 0;
+      vy = this.facing === 'down' ? 1 : this.facing === 'up' ? -1 : 0;
+    }
+
     if (vx || vy) {
       // Keyboard always wins over a clicked route.
       if (this.path.length) this.setPath([]);
       this.pending = null;
       const len = Math.hypot(vx, vy);
-      vx = (vx / len) * SPEED * dt;
-      vy = (vy / len) * SPEED * dt;
+      vx = (vx / len) * this.speed() * dt;
+      vy = (vy / len) * this.speed() * dt;
       if (this.canStand(this.player.x + vx, this.player.y)) this.player.x += vx;
       if (this.canStand(this.player.x, this.player.y + vy)) this.player.y += vy;
       this.facing = Math.abs(vx) > Math.abs(vy) ? (vx > 0 ? 'right' : 'left') : vy > 0 ? 'down' : 'up';
@@ -432,7 +595,7 @@ export class StationScene extends Phaser.Scene {
       const dx = tx - this.player.x;
       const dy = ty - this.player.y;
       const dist = Math.hypot(dx, dy);
-      const step = SPEED * dt;
+      const step = this.speed() * dt;
       if (dist <= step) {
         this.player.setPosition(tx, ty);
         this.path.shift();
@@ -453,21 +616,22 @@ export class StationScene extends Phaser.Scene {
 
     this.player.setDepth(this.player.y);
     const cell = this.cellOf();
-    const room = roomOf(cell.x, cell.y);
+    const room = this.world.roomAt[cell.y]?.[cell.x];
     if (room) this.ui.setRoom(room);
+    this.ui.setPlayer(cell.x, cell.y);
     this.checkPickups(cell);
 
     this.target = this.nearbyObject();
     if (this.target) {
       const t = this.target;
-      this.prompt.setPosition((t.x + t.w / 2) * TILE, (this.tops.get(t.id) ?? t.y * TILE) - (t.label ? 14 : 2)).setVisible(true);
+      this.prompt.setPosition((t.x + t.w / 2) * TILE, (this.tops.get(t.id) ?? t.y * TILE) - (this.labels.has(t.id) ? 14 : 2)).setVisible(true);
     } else {
       this.prompt.setVisible(false);
     }
   }
 
   private checkPickups(cell: Cell) {
-    for (const p of PICKUPS) {
+    for (const p of this.world.pickups) {
       if (p.x !== cell.x || p.y !== cell.y || this.ui.found.has(p.id)) continue;
       this.pickups.get(p.id)?.forEach((o) => o.destroy());
       this.ui.collect(p.id);

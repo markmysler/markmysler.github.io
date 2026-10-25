@@ -1,4 +1,4 @@
-import { EMAIL, GITHUB, LINKEDIN, PATHFINDER, POKEDEX, PUNTO_MEDIO, cvHref, repo } from './links';
+import { EMAIL, GITHUB, LINKEDIN, PATHFINDER, POKEDEX, PUNTO_MEDIO, SNAKE_DEMO, cvHref, repo } from './links';
 import type { Content } from './types';
 
 export const en: Content = {
@@ -16,7 +16,7 @@ export const en: Content = {
     quick: 'Quick view',
     otherLang: 'Español',
     loading: 'Docking…',
-    controls: 'Move with WASD / arrows or click. Press E to interact.',
+    controls: 'Move with WASD / arrows or click, Space to dash, E to interact.',
   },
   hud: {
     contact: 'Contact',
@@ -32,21 +32,103 @@ export const en: Content = {
     pickedUp: (name) => `Picked up: ${name}`,
     downloadCv: 'Download CV (PDF)',
     unknown: 'Not found yet',
+    map: 'Map',
+    mapTitle: 'Station map',
+    mapHint: 'Pick a room and the A* autopilot walks you there.',
+    visited: 'visited',
+    notVisited: 'not visited yet',
+    go: 'Go',
+    dash: 'Dash',
+  },
+  demos: {
+    nodes: 'nodes',
+    generation: (gen, best) => `gen ${gen} · best ${best}`,
+    asciiCaption: 'The avatar walking around this station, converted to ASCII right now in your browser:',
+    markovCaption: 'Fresh candidates from a tiny order-2 chain trained on station words:',
+    again: 'Generate again',
+    safePrompt: 'Enter the password',
+    safeNote: 'Note taped to the door: "bcra frfnzr"',
+    safeHint: 'Hint: every letter is shifted 13 places (ROT13).',
+    safeLabel: 'Password',
+    safeTry: 'Unlock',
+    safeSkip: 'Skip the puzzle',
+    safeWrong: 'Access denied. Try shifting each letter 13 places.',
+    safeOpen: 'Unlocked. Two badges were inside.',
+    safeAlreadyOpen: 'The safe is open and empty: its badges are in your inventory.',
+  },
+  games: {
+    start: 'Start',
+    again: 'Play again',
+    won: (prize) => `You won: ${prize}`,
+    alreadyWon: 'Prize already in your inventory. Play for fun.',
+    score: (score, best) => `Score ${score} · best ${best}`,
+    snakeHelp: 'Arrow keys, WASD or swipe. Eat 10 apples to win the prize.',
+    snakeGoal: (n) => `${n} more to win`,
+    snakeOver: (score) => `Game over at ${score}.`,
+    chromleHelp: 'Guess the hidden code of 5 colours in 6 tries. Colours can repeat. ✓ right colour and spot · ~ right colour, wrong spot · × not in the code. Keys 1–6, Backspace and Enter work too.',
+    colors: ['Red', 'Orange', 'Yellow', 'Green', 'Cyan', 'Magenta'],
+    guess: 'Guess',
+    erase: 'Erase',
+    hit: 'right spot',
+    near: 'wrong spot',
+    miss: 'not in the code',
+    chromleWin: (tries) => `Cracked in ${tries}!`,
+    chromleLose: 'Out of tries. The code was:',
+    spin: 'Spin',
+    slotsHelp: 'Three of a kind wins. Space or Enter spins.',
+    slotsWin: 'Jackpot!',
+    slotsPair: 'Two of a kind. So close.',
+    slotsMiss: 'No luck. Spin again.',
+    spins: (n) => `Spins: ${n}`,
+    signalHelp: 'Watch the pads light up, then repeat the sequence. Click the pads or press 1–4. Clear round 6 to win.',
+    signalWatch: 'Watch…',
+    signalYourTurn: 'Your turn',
+    signalRound: (n) => `Round ${n}`,
+    signalWin: 'Signal locked: round 6 cleared!',
+    signalLost: (n) => `Signal lost in round ${n}.`,
+    up: 'Up',
+    down: 'Down',
+    left: 'Left',
+    right: 'Right',
+  },
+  prizesTitle: 'Arcade prizes',
+  prizes: {
+    apple: { name: 'Golden apple', desc: 'Ate 10 apples in the Snake cabinet.', hint: 'Win at Snake in the Arcade.' },
+    prism: { name: 'Prism', desc: 'Cracked a Chromle colour code.', hint: 'Win at Chromle in the Workshop.' },
+    seven: { name: 'Lucky seven', desc: 'Hit three of a kind on the slot machine.', hint: 'Win at the slot machine in the Arcade.' },
+    signal: { name: 'Signal booster', desc: 'Repeated a six-step Signal sequence.', hint: 'Win at Signal in the Training bay.' },
   },
   rooms: {
     hub: 'Airlock',
+    nav: 'Navigation deck',
+    workshop: 'Workshop',
+    training: 'Training bay',
+    arcade: 'Arcade',
+    vault: 'Security vault',
+    trophy: 'Trophy hold',
     core: 'Punto Medio core',
-    corridor: 'Service corridor',
+    logs: 'Crew logs',
+    corridor: 'Corridor',
   },
   labels: {
     guide: 'Guide',
     about: 'About',
     directory: 'Map',
     mailbox: 'Comms',
-    doorNav: 'Navigation',
-    doorArcade: 'Arcade',
-    doorVault: 'Vault',
-    doorLogs: 'Crew logs',
+    pathfinder: 'Pathfinder',
+    learn: 'Learn',
+    asciify: 'asciify',
+    markov: 'markov-passgen',
+    desktopls: 'DesktopLS',
+    tecnokids: 'TecnoKids',
+    teaching: 'Courses',
+    robot: 'Robot',
+    pokedex: 'pokedex-next',
+    snakeai: 'snake-ai',
+    dvc: 'DVC',
+    wpair: 'wpair-cli',
+    safe: 'Safe',
+    trophies: 'Plaque',
     pmTable: 'Punto Medio',
     eventbridge: 'EventBridge',
     sqs: 'SQS',
@@ -60,14 +142,22 @@ export const en: Content = {
     terraform: 'Terraform',
     cognito: 'Cognito',
     database: 'Postgres',
+    amvp: 'AMVP APP',
+    hospital: 'Hospital',
+    iconic: 'Iconic',
+    ynet: 'ynet',
+    snakegame: 'Snake',
+    slots: 'Slots',
+    chromle: 'Chromle',
+    simon: 'Signal',
   },
   objects: {
     guide: {
       title: 'Station guide',
       body: [
         'Welcome aboard. This station is my portfolio: each room is a project or a part of how I work as an engineer.',
-        'Walk with WASD or the arrow keys, or click (tap on a phone) where you want to go. The route is planned with A*, the same search my Pathfinder project visualizes.',
-        'Press E next to anything that glows to read it. Some rooms hold items; they fill your inventory, which doubles as my CV.',
+        'Walk with WASD or the arrow keys, or click (tap on a phone) where you want to go. Space dashes. The route is planned with A*, the same search my Pathfinder project visualizes.',
+        'Press E next to anything that glows to read it. Items you pick up fill your inventory (I), which doubles as my CV. The minimap in the corner opens the full map (M), and from there the autopilot can walk you to any room.',
         'In a hurry? The Contact and CV buttons are always in the top corner.',
       ],
     },
@@ -87,9 +177,8 @@ export const en: Content = {
     directory: {
       title: 'Station map',
       body: [
-        'Online now: Airlock (you are here) and, through the east corridor, the Punto Medio core.',
-        'Still sealed: Navigation deck (Pathfinder), Arcade (pokedex-next, snake-ai), Security vault (Damn Vulnerable Containers, wpair-cli), Training bay, Workshop, Crew logs and the Trophy hold.',
-        'Sealed doors still tell you what is behind them, with links to the real thing.',
+        'North: the Navigation deck (Pathfinder), and past it the Workshop. East: the Punto Medio core, with the Crew logs below it. South: the Security vault, then the Trophy hold. West: the Arcade, with the Training bay above it.',
+        'Press M or click the minimap for the full map. Pick a room and the A* autopilot walks you there.',
       ],
     },
     mailbox: {
@@ -105,11 +194,12 @@ export const en: Content = {
         { label: 'CV (PDF)', href: cvHref('en') },
       ],
     },
-    doorNav: {
-      title: 'Navigation deck · sealed',
+    pathfinder: {
+      title: 'Pathfinder',
       body: [
-        'Behind this door: Pathfinder. Graph-search algorithms (BFS, Dijkstra, A*, contraction hierarchies, ALT and more) race across real OpenStreetMap streets, with a Learn article for each one.',
+        'Graph-search algorithms (BFS, Dijkstra, A*, contraction hierarchies, ALT and more) race across real OpenStreetMap streets, so you can see why some explore half a city and others head straight for the goal.',
         'It is an offline-capable PWA in TypeScript, React, MapLibre, deck.gl and Web Workers, tested with Vitest and Playwright.',
+        'The race on this deck is a tiny version: BFS, Dijkstra and A* on the same random grid, where darker cells cost more to cross. BFS ignores the cost, so its route is often the slowest.',
       ],
       tags: ['TypeScript', 'React', 'MapLibre', 'PWA'],
       links: [
@@ -117,36 +207,105 @@ export const en: Content = {
         { label: 'Source', href: repo('pathfinder') },
       ],
     },
-    doorArcade: {
-      title: 'Arcade · sealed',
+    learn: {
+      title: 'Learn articles',
+      body: ['Pathfinder ships with a Learn article for every algorithm, so you can read how each one works and then watch it race.'],
+      links: [{ label: 'Open Pathfinder', href: PATHFINDER }],
+    },
+    asciify: {
+      title: 'asciify',
+      body: ['A command-line tool that turns images into ASCII art. Install it with pip (asciifyy) or apt.'],
+      tags: ['Python', 'CLI'],
+      links: [{ label: 'Source', href: repo('asciify') }],
+    },
+    markov: {
+      title: 'markov-passgen',
       body: [
-        'pokedex-next: a Pokémon collection and battle game with case openings, real-time 3v3 PvP and trading, in English and Spanish. All game logic runs server-side on a locked-down Supabase backend (row-level security, private Realtime channels, atomic PostgreSQL functions).',
-        'snake-ai: a lab where networks learn to play Snake (genetic algorithm, DQN, LLM agent), with a 9-lesson course.',
+        'Generates human-like password candidates with Markov chains: it builds n-gram models (n = 2 to 5) from text corpora, then filters candidates, transforms them (leetspeak, case variations) and scores them by Shannon entropy.',
+        'Built for security research, penetration testing and password-strength analysis.',
       ],
-      tags: ['Next.js', 'Supabase', 'PostgreSQL', 'Python'],
+      tags: ['Python', 'Security', 'CLI'],
+      links: [{ label: 'Source', href: repo('markov-passgen') }],
+    },
+    desktopls: {
+      title: 'DesktopLS',
+      body: [
+        'A lightweight Windows navigation bar that points the desktop at any folder, with back, forward and up history, path autocomplete, and icon positions remembered per folder and per monitor setup.',
+        'It is crash-safe (the original desktop path is recorded first and restored on the next launch) and ships as a single self-contained .exe.',
+      ],
+      tags: ['C#', 'Windows'],
+      links: [{ label: 'Source', href: repo('desktop-ls') }],
+    },
+    tecnokids: {
+      title: 'TecnoKids',
+      body: [
+        'From March 2025 to March 2026 I taught programming and robotics to children aged 6 to 8 at TecnoKids LATAM: first programs in Scratch, then building and programming robots with LEGO and ESP32 microcontrollers.',
+      ],
+      tags: ['Scratch', 'LEGO', 'ESP32', 'Teaching'],
+    },
+    teaching: {
+      title: 'Courses in my projects',
+      body: [
+        'Teaching shows up in my side projects too. Pathfinder has a Learn article for every algorithm, and snake-ai is built as a nine-lesson course: one question and one change per lesson, every recipe trained with three seeds.',
+      ],
       links: [
-        { label: 'Play pokedex-next', href: POKEDEX },
-        { label: 'snake-ai', href: repo('snake-ai') },
+        { label: 'Pathfinder', href: PATHFINDER },
+        { label: 'snake-ai course', href: SNAKE_DEMO },
       ],
     },
-    doorVault: {
-      title: 'Security vault · sealed',
+    robot: {
+      title: 'Patrol robot',
+      body: ['A small robot running laps on its mat, like the ones my students built with LEGO and ESP32 boards.'],
+    },
+    pokedex: {
+      title: 'pokedex-next',
       body: [
-        'Damn Vulnerable Containers: a self-hosted offensive-security training platform that runs intentionally vulnerable apps in isolated Docker containers for capture-the-flag practice (Flask, Docker, TypeScript).',
-        'wpair-cli: a defensive scanner for CVE-2025-36911, a Google Fast Pair Bluetooth vulnerability (Python).',
-        'Credentials on file: ISC2 Certified in Cybersecurity (CC) and Ekoparty Hackademy FOHD.',
+        'A Pokémon collection and battle game with case openings, real-time 3v3 PvP and trading, in English and Spanish.',
+        'All game logic runs server-side on a locked-down Supabase backend: row-level security, private Realtime channels and atomic PostgreSQL functions.',
       ],
-      tags: ['Security', 'Docker', 'Flask', 'Python'],
+      tags: ['Next.js', 'TypeScript', 'Supabase', 'PostgreSQL'],
+      links: [{ label: 'Play pokedex-next', href: POKEDEX }],
+    },
+    snakeai: {
+      title: 'snake-ai',
+      body: [
+        'A lab where neural networks learn to play Snake, with a genetic algorithm and Deep Q-learning, plus an LLM agent that plays from a text description. You choose what each snake sees and how it is rewarded, and every run is saved with its exact recipe so anyone can repeat it. It comes with a nine-lesson course.',
+        'The snake in this tank is a much simpler agent running in your browser: it heads for the apple, avoids moves that box it in, and makes fewer random moves every generation.',
+      ],
+      tags: ['Python', 'PyTorch', 'NumPy', 'Reinforcement learning'],
       links: [
-        { label: 'DVC', href: repo('dvc') },
-        { label: 'wpair-cli', href: repo('wpair-cli') },
+        { label: 'Live demo', href: SNAKE_DEMO },
+        { label: 'Source', href: repo('snake-ai') },
       ],
     },
-    doorLogs: {
-      title: 'Crew logs · sealed',
+    dvc: {
+      title: 'Damn Vulnerable Containers',
       body: [
-        'Freelance full-stack developer, Jul 2023 – Jan 2026: AMVP APP (FastAPI, Docker, Nginx, Firebase, Angular); two systems for Hospital General de Agudos Dr. Juan A. Fernández (Django REST + Vue 3, then Nuxt 4 + Supabase); Iconic Virtual Offices in the US (FastAPI, Keycloak, WebSockets, Stripe, GoHighLevel, HubSpot and Zapier).',
-        'Robotics and programming teacher for ages 6 to 8 at TecnoKids (2025–2026). English to Spanish news translator at ynet (2020–2023).',
+        'A self-hosted CTF platform: browse challenges, spawn intentionally vulnerable apps in isolated Docker containers on demand, exploit them and capture the flags.',
+        'Flags are unique per instance (HMAC-SHA256), and Prometheus and Grafana monitor the containers. Everything runs locally, with no cloud services.',
+      ],
+      tags: ['Flask', 'Docker', 'Next.js', 'Prometheus'],
+      links: [{ label: 'Source', href: repo('dvc') }],
+    },
+    wpair: {
+      title: 'wpair-cli',
+      body: [
+        "A defensive research tool for CVE-2025-36911 (WhisperPair), a flaw in Google's Fast Pair protocol that allows unauthorized Bluetooth pairing with affected audio devices.",
+        'It scans for nearby Fast Pair devices so owners can check hardware they own.',
+      ],
+      tags: ['Python', 'Bluetooth', 'Security'],
+      links: [{ label: 'Source', href: repo('wpair-cli') }],
+    },
+    safe: {
+      title: 'Vault safe',
+      body: ['Two of my credentials are locked in here. The password is on the door, lightly encrypted.'],
+    },
+    trophies: {
+      title: 'Trophy hold',
+      body: [
+        "Education: Computer Engineering at Universidad de Belgrano (2025–2029, expected) and ITBA's Professional Certificate in Artificial Intelligence (2024).",
+        "Awards: top-10 finalist at the UC Berkeley Innovation Intelligence Hackathon with Tenure (Oct 2026), and Rotary Club Belgrano's Academic Excellence Award (Sep 2026).",
+        'Each one sits on a pedestal in this room.',
       ],
     },
     pmTable: {
@@ -161,44 +320,32 @@ export const en: Content = {
     },
     eventbridge: {
       title: '1 · Schedule',
-      body: [
-        'Every 15 minutes an EventBridge rule wakes the pipeline up to collect new articles from dozens of Argentine outlets.',
-      ],
+      body: ['Every 15 minutes an EventBridge rule wakes the pipeline up to collect new articles from dozens of Argentine outlets.'],
       tags: ['EventBridge'],
     },
     sqs: {
       title: '2 · Queue',
-      body: [
-        'Each article to fetch becomes a message on SQS. The queue absorbs bursts and retries, so a slow outlet never blocks the rest.',
-      ],
+      body: ['Each article to fetch becomes a message on SQS. The queue absorbs bursts and retries, so a slow outlet never blocks the rest.'],
       tags: ['SQS'],
     },
     lambda: {
       title: '3 · Scrape',
-      body: [
-        'Lambda workers pull from the queue, scrape and clean each article, and store it: raw copies in S3, structured rows in RDS PostgreSQL.',
-      ],
+      body: ['Lambda workers pull from the queue, scrape and clean each article, and store it: raw copies in S3, structured rows in RDS PostgreSQL.'],
       tags: ['Lambda', 'S3', 'RDS'],
     },
     clusters: {
       title: '4 · Cluster into events',
-      body: [
-        'Articles are embedded and stored in pgvector, then grouped with HDBSCAN, so twenty outlets writing about the same story land in one event.',
-      ],
+      body: ['Articles are embedded and stored in pgvector, then grouped with HDBSCAN, so twenty outlets writing about the same story land in one event.'],
       tags: ['Embeddings', 'pgvector', 'HDBSCAN'],
     },
     llm: {
       title: '5 · Analyze',
-      body: [
-        'An LLM reads every article and extracts its framing, the actors involved and the claims it makes, each pointing to the exact sentence in the source.',
-      ],
+      body: ['An LLM reads every article and extracts its framing, the actors involved and the claims it makes, each pointing to the exact sentence in the source.'],
       tags: ['LLMs', 'Python'],
     },
     evals: {
       title: '6 · Check the checker',
-      body: [
-        'An evaluation harness tests the analysis against the source text for neutrality and accuracy, so changes to prompts or models are measured, not guessed.',
-      ],
+      body: ['An evaluation harness tests the analysis against the source text for neutrality and accuracy, so changes to prompts or models are measured, not guessed.'],
       tags: ['LLM evaluation'],
     },
     wikidata: {
@@ -213,16 +360,12 @@ export const en: Content = {
     },
     web: {
       title: '9 · Publish',
-      body: [
-        'The Next.js web app shows events and perspectives to readers; a Next.js admin console manages the platform. S3 and CloudFront handle storage and delivery.',
-      ],
+      body: ['The Next.js web app shows events and perspectives to readers; a Next.js admin console manages the platform. S3 and CloudFront handle storage and delivery.'],
       tags: ['Next.js', 'CloudFront', 'S3'],
     },
     terraform: {
       title: 'Blueprints',
-      body: [
-        'All of the infrastructure is code: Terraform, deployed by GitLab CI through OIDC, with no stored cloud credentials anywhere.',
-      ],
+      body: ['All of the infrastructure is code: Terraform, deployed by GitLab CI through OIDC, with no stored cloud credentials anywhere.'],
       tags: ['Terraform', 'GitLab CI', 'OIDC'],
     },
     cognito: {
@@ -232,29 +375,73 @@ export const en: Content = {
     },
     database: {
       title: 'Data core',
-      body: [
-        'RDS PostgreSQL with pgvector holds articles, embeddings, events and analyses in one place, so similarity search and relational queries share a database.',
-      ],
+      body: ['RDS PostgreSQL with pgvector holds articles, embeddings, events and analyses in one place, so similarity search and relational queries share a database.'],
       tags: ['PostgreSQL', 'pgvector', 'RDS'],
+    },
+    amvp: {
+      title: 'AMVP APP',
+      body: ['Backend for a football statistics app for amateur players: a FastAPI REST API deployed with Docker behind Nginx, with Firebase and an Angular (PrimeNG) frontend.'],
+      tags: ['FastAPI', 'Docker', 'Nginx', 'Firebase'],
+    },
+    hospital: {
+      title: 'Hospital General de Agudos Dr. Juan A. Fernández',
+      body: [
+        'Two systems for a public hospital in Buenos Aires, each delivered from requirements to deployment.',
+        'First, a teaching-room booking platform (Django REST Framework, Vue 3). Then a consulting-room scheduling system for doctors, rooms, shifts, leave and bookings, with an admin panel and data exports (Nuxt 4, Supabase).',
+      ],
+      tags: ['Django REST', 'Vue 3', 'Nuxt 4', 'Supabase'],
+    },
+    iconic: {
+      title: 'Iconic Virtual Offices (US)',
+      body: [
+        'A FastAPI backend with Keycloak authentication, PostgreSQL and WebSocket presence tracking, deployed with Docker Compose and Nginx.',
+        "Node.js integrations with HubSpot and Zapier, and a Stripe checkout synced to the company's GoHighLevel CRM.",
+      ],
+      tags: ['FastAPI', 'Keycloak', 'WebSockets', 'Stripe'],
+    },
+    ynet: {
+      title: 'ynet',
+      body: ["English–Spanish translator, Jan 2020 – Mar 2023: I translated, edited and adapted news articles from English into Spanish for ynet's Spanish edition."],
+      tags: ['Translation', 'News'],
+    },
+    snakegame: {
+      title: 'Snake',
+      body: ['The classic, on an arcade cabinet. My snake-ai project trains networks to play this; here it is your turn.'],
+    },
+    slots: {
+      title: 'Slot machine',
+      body: ['Someone wired this old machine into the station grid. It pays out in prizes, not coins.'],
+    },
+    chromle: {
+      title: 'Chromle',
+      body: ['A Wordle with colours: crack the five-colour code mixed on this bench.'],
+    },
+    simon: {
+      title: 'Signal',
+      body: ['A memory game in the spirit of the classes I taught: watch the sequence, then repeat it.'],
     },
   },
   items: {
     keycard: { name: 'CEO keycard · Punto Medio', desc: 'Co-founder and CEO since May 2025.', hint: 'Somewhere in the Punto Medio core.' },
     berkeley: {
       name: 'Hackathon trophy · UC Berkeley',
-      desc: 'Top-10 finalist at the UC Berkeley Innovation Intelligence Hackathon (Oct 2026) with Tenure: AI teams for solo founders that live in Telegram and earn autonomy one approved task at a time. Built with Juan Ignacio Llaberia.',
-      hint: 'On display in the Airlock.',
+      desc: 'Top-10 finalist at the UC Berkeley Innovation Intelligence Hackathon (Oct 2026) with Tenure: AI teams for solo founders that live in Telegram and earn autonomy one approved task at a time. Built with Juan Ignacio Llaberia (LangGraph, OpenRouter, Claude, Supabase).',
+      hint: 'Trophy hold.',
     },
-    pathfinder: { name: 'Compass · Pathfinder', desc: 'Graph-search algorithms racing on real streets.', hint: 'Navigation deck (sealed).' },
-    pokedex: { name: 'Case · pokedex-next', desc: 'Real-time 3v3 PvP and trading.', hint: 'Arcade (sealed).' },
-    snake: { name: 'Neural chip · snake-ai', desc: 'GA, DQN and an LLM agent learning Snake.', hint: 'Arcade (sealed).' },
-    cc: { name: 'Badge · ISC2 CC', desc: 'Certified in Cybersecurity, Oct 2024.', hint: 'Security vault (sealed).' },
-    fohd: { name: 'Badge · Ekoparty FOHD', desc: 'Fundamentals of Hacking and Defense, Jan 2026.', hint: 'Security vault (sealed).' },
-    tecnokids: { name: 'Robot kit · TecnoKids', desc: 'Taught robotics and programming to ages 6–8.', hint: 'Training bay (sealed).' },
-    logbook: { name: 'Logbook · Freelance', desc: 'Two and a half years of client work.', hint: 'Crew logs (sealed).' },
-    ub: { name: 'Student ID · Universidad de Belgrano', desc: 'Computer Engineering, 2025–2029.', hint: 'Trophy hold (sealed).' },
-    rotary: { name: 'Medal · Rotary Club Belgrano', desc: 'Academic Excellence Award, Sep 2026.', hint: 'Trophy hold (sealed).' },
-    itba: { name: 'Certificate · ITBA', desc: 'Professional Certificate in AI, 2024.', hint: 'Trophy hold (sealed).' },
+    pathfinder: { name: 'Compass · Pathfinder', desc: 'Graph-search algorithms racing on real streets.', hint: 'Navigation deck.' },
+    pokedex: { name: 'Case · pokedex-next', desc: 'Real-time 3v3 PvP, trading and case openings.', hint: 'Arcade.' },
+    snake: { name: 'Neural chip · snake-ai', desc: 'A genetic algorithm, DQN and an LLM agent learning Snake.', hint: 'Arcade.' },
+    cc: { name: 'Badge · ISC2 CC', desc: 'Certified in Cybersecurity, Oct 2024 (valid to Oct 2027).', hint: 'Locked in the Security vault.' },
+    fohd: { name: 'Badge · Ekoparty FOHD', desc: 'Fundamentals of Hacking and Defense, Ekoparty Hackademy, Jan 2026.', hint: 'Locked in the Security vault.' },
+    tecnokids: { name: 'Robot kit · TecnoKids', desc: 'Taught robotics and programming to ages 6–8, 2025–2026.', hint: 'Training bay.' },
+    logbook: { name: 'Logbook · Freelance', desc: 'Freelance full-stack developer for clients in Argentina and the US, Jul 2023 – Jan 2026.', hint: 'Crew logs.' },
+    ub: { name: 'Student ID · Universidad de Belgrano', desc: 'Computer Engineering, Mar 2025 – 2029 (expected).', hint: 'Trophy hold.' },
+    rotary: {
+      name: 'Medal · Rotary Club Belgrano',
+      desc: 'Academic Excellence Award (Sep 2026) for one of the best first-year averages in Computer Engineering at Universidad de Belgrano.',
+      hint: 'Trophy hold.',
+    },
+    itba: { name: 'Certificate · ITBA', desc: 'Professional Certificate in Artificial Intelligence, Apr – Jul 2024.', hint: 'Trophy hold.' },
   },
   quick: {
     contact: 'Contact',
@@ -336,6 +523,24 @@ export const en: Content = {
         desc: 'A lab where networks learn Snake (genetic algorithm, DQN, LLM agent), with a 9-lesson course.',
         stack: 'Python',
         link: { label: 'github.com/markmysler/snake-ai', href: repo('snake-ai') },
+      },
+      {
+        name: 'markov-passgen',
+        desc: 'Generates human-like password candidates with Markov-chain n-gram models, then filters, transforms and scores them by entropy. For security research and password-strength analysis.',
+        stack: 'Python',
+        link: { label: 'github.com/markmysler/markov-passgen', href: repo('markov-passgen') },
+      },
+      {
+        name: 'asciify',
+        desc: 'Command-line tool that turns images into ASCII art, installable with pip (asciifyy) or apt.',
+        stack: 'Python',
+        link: { label: 'github.com/markmysler/asciify', href: repo('asciify') },
+      },
+      {
+        name: 'DesktopLS',
+        desc: 'Windows navigation bar that points the desktop at any folder, with history, autocomplete and per-folder icon layouts. Ships as one self-contained .exe.',
+        stack: 'C#',
+        link: { label: 'github.com/markmysler/desktop-ls', href: repo('desktop-ls') },
       },
     ],
     educationTitle: 'Education',

@@ -35,17 +35,27 @@ export interface CvProject {
   link?: Link;
 }
 
-export type RoomId = 'hub' | 'core' | 'corridor';
+export type RoomId = 'hub' | 'nav' | 'workshop' | 'training' | 'arcade' | 'vault' | 'trophy' | 'core' | 'logs' | 'corridor';
 
 export type ObjectId =
   | 'guide'
   | 'about'
   | 'directory'
   | 'mailbox'
-  | 'doorNav'
-  | 'doorArcade'
-  | 'doorVault'
-  | 'doorLogs'
+  | 'pathfinder'
+  | 'learn'
+  | 'asciify'
+  | 'markov'
+  | 'desktopls'
+  | 'tecnokids'
+  | 'teaching'
+  | 'robot'
+  | 'pokedex'
+  | 'snakeai'
+  | 'dvc'
+  | 'wpair'
+  | 'safe'
+  | 'trophies'
   | 'pmTable'
   | 'eventbridge'
   | 'sqs'
@@ -58,7 +68,18 @@ export type ObjectId =
   | 'web'
   | 'terraform'
   | 'cognito'
-  | 'database';
+  | 'database'
+  | 'amvp'
+  | 'hospital'
+  | 'iconic'
+  | 'ynet'
+  | 'snakegame'
+  | 'slots'
+  | 'chromle'
+  | 'simon';
+
+/** Collectibles you win in the mini-games, separate from the CV items. */
+export type PrizeId = 'apple' | 'prism' | 'seven' | 'signal';
 
 export type ItemId =
   | 'keycard'
@@ -101,7 +122,67 @@ export interface Content {
     pickedUp: (name: string) => string;
     downloadCv: string;
     unknown: string;
+    map: string;
+    mapTitle: string;
+    mapHint: string;
+    visited: string;
+    notVisited: string;
+    go: string;
+    dash: string;
   };
+  demos: {
+    nodes: string;
+    generation: (gen: number, best: number) => string;
+    asciiCaption: string;
+    markovCaption: string;
+    again: string;
+    safePrompt: string;
+    safeNote: string;
+    safeHint: string;
+    safeLabel: string;
+    safeTry: string;
+    safeSkip: string;
+    safeWrong: string;
+    safeOpen: string;
+    safeAlreadyOpen: string;
+  };
+  games: {
+    start: string;
+    again: string;
+    won: (prize: string) => string;
+    alreadyWon: string;
+    score: (score: number, best: number) => string;
+    snakeHelp: string;
+    snakeGoal: (n: number) => string;
+    snakeOver: (score: number) => string;
+    chromleHelp: string;
+    colors: string[];
+    guess: string;
+    erase: string;
+    hit: string;
+    near: string;
+    miss: string;
+    chromleWin: (tries: number) => string;
+    chromleLose: string;
+    spin: string;
+    slotsHelp: string;
+    slotsWin: string;
+    slotsPair: string;
+    slotsMiss: string;
+    spins: (n: number) => string;
+    signalHelp: string;
+    signalWatch: string;
+    signalYourTurn: string;
+    signalRound: (n: number) => string;
+    signalWin: string;
+    signalLost: (n: number) => string;
+    up: string;
+    down: string;
+    left: string;
+    right: string;
+  };
+  prizesTitle: string;
+  prizes: Record<PrizeId, Item>;
   rooms: Record<RoomId, string>;
   labels: Partial<Record<ObjectId, string>>;
   objects: Record<ObjectId, Entry>;

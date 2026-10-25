@@ -6,7 +6,7 @@ export const en: Content = {
   meta: {
     title: 'Mark Mysler · The Station',
     description:
-      'Backend and security engineer, co-founder and CEO of Punto Medio. Explore a pixel-art station where every room is a project, or read the quick view.',
+      'Mark Mysler\'s portfolio as an explorable pixel-art station: Punto Medio\'s AWS news pipeline, Pathfinder\'s algorithm races, security tools and mini-games.',
   },
   headline: 'Backend & security engineer · Co-founder & CEO, Punto Medio',
   location: 'Buenos Aires, Argentina',

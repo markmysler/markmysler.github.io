@@ -62,9 +62,10 @@ export interface Room extends Rect {
   id: RoomId;
 }
 
-/** Flat decoration painted on the floor (a carpet runner, cable trays, lasers). Walkable. */
+/** Decoration painted on the floor (a carpet runner, cable trays, seats). Walkable unless solid. */
 export interface Decor extends Rect {
   kind: string;
+  solid: boolean;
 }
 
 export interface World {
@@ -150,7 +151,7 @@ export function buildWorld(map: TiledMap): World {
         belt = r;
         break;
       case 'decor':
-        decor.push({ ...r, kind: String(prop(o, 'kind') ?? o.name) });
+        decor.push({ ...r, kind: String(prop(o, 'kind') ?? o.name), solid: prop(o, 'solid') === true });
         break;
       case 'pickup':
         pickups.push({ id: o.name as ItemId, x: r.x, y: r.y, key: String(prop(o, 'key')) });
@@ -181,6 +182,10 @@ export function buildWorld(map: TiledMap): World {
         if (o.interactive) objectAt[y][x] = o;
       }
     }
+  }
+  for (const d of decor) {
+    if (!d.solid) continue;
+    for (let y = d.y; y < d.y + d.h; y++) for (let x = d.x; x < d.x + d.w; x++) if (inside(x, y)) solid[y][x] = true;
   }
   for (let x = belt.x; x < belt.x + belt.w; x++) for (let y = belt.y; y < belt.y + belt.h; y++) if (inside(x, y)) solid[y][x] = true;
 

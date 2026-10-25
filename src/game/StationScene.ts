@@ -109,6 +109,7 @@ export class StationScene extends Phaser.Scene {
       this.signs.push([sign.to, text]);
     }
     this.addLasers();
+    this.addSpotlights();
 
 
     world.objects.forEach((o) => this.addObject(o));
@@ -354,6 +355,20 @@ export class StationScene extends Phaser.Scene {
         return top - 2;
       default:
         return top;
+    }
+  }
+
+  /** Two soft spotlights sweeping the Auditorium's stage. */
+  private addSpotlights() {
+    for (const d of this.world.decor.filter((x) => x.kind === 'stage')) {
+      [0.3, 0.7].forEach((f, i) => {
+        const x = (d.x + d.w * f) * TILE;
+        const y = (d.y + d.h / 2) * TILE;
+        const light = this.add.ellipse(x, y, 70, 34, COLORS.yellow, 0.16).setDepth(-3);
+        this.motionTweens.push(
+          this.tweens.add({ targets: light, x: x + (i ? -24 : 24), alpha: 0.26, duration: 2200 + i * 500, yoyo: true, repeat: -1, ease: 'Sine.inOut' }),
+        );
+      });
     }
   }
 

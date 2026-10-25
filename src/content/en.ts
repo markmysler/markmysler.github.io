@@ -1,4 +1,4 @@
-import { EMAIL, GITHUB, LINKEDIN, PATHFINDER, POKEDEX, PUNTO_MEDIO, SNAKE_DEMO, cvHref, repo } from './links';
+import { EKOPARTY_SCHEDULE, EMAIL, GITHUB, LINKEDIN, NERDEARLA_SPEAKER, NERDEARLA_VIDEO, PATHFINDER, POKEDEX, PUNTO_MEDIO, SNAKE_DEMO, cvHref, repo } from './links';
 import type { Content } from './types';
 
 export const en: Content = {
@@ -108,6 +108,7 @@ export const en: Content = {
     trophy: 'Trophy hold',
     core: 'Punto Medio core',
     logs: 'Crew logs',
+    stage: 'Auditorium',
     corridor: 'Corridor',
   },
   labels: {
@@ -150,6 +151,8 @@ export const en: Content = {
     slots: 'Slots',
     chromle: 'Chromle',
     simon: 'Signal',
+    nerdearla: 'Nerdearla',
+    ekoparty: 'Ekoparty',
   },
   objects: {
     guide: {
@@ -177,7 +180,7 @@ export const en: Content = {
     directory: {
       title: 'Station map',
       body: [
-        'North: the Navigation deck (Pathfinder), and past it the Workshop. East: the Punto Medio core, with the Crew logs below it. South: the Security vault, then the Trophy hold. West: the Arcade, with the Training bay above it.',
+        'North: the Navigation deck (Pathfinder), and past it the Workshop. East: the Punto Medio core, with the Crew logs below it and the Auditorium, where my talks live, behind it. South: the Security vault, then the Trophy hold. West: the Arcade, with the Training bay above it.',
         'Press M or click the minimap for the full map. Pick a room and the A* autopilot walks you there.',
       ],
     },
@@ -420,8 +423,34 @@ export const en: Content = {
       title: 'Signal',
       body: ['A memory game in the spirit of the classes I taught: watch the sequence, then repeat it.'],
     },
+    nerdearla: {
+      title: 'Nerdearla Argentina 2026',
+      body: [
+        '"Tu problema no necesita un LLM (y tu factura tampoco)": your problem doesn\'t need an LLM, and neither does your bill. A talk with Juan Ignacio Llaberia on when classic machine learning beats LLMs on cost and latency, and how to combine them in hybrid architectures.',
+        '24 Sep 2026 · Gran Sala, Centro Cultural Konex, Buenos Aires.',
+      ],
+      tags: ['Machine learning', 'LLMs', 'Architecture'],
+      links: [
+        { label: 'Watch the talk', href: NERDEARLA_VIDEO },
+        { label: 'Speaker page', href: NERDEARLA_SPEAKER },
+      ],
+    },
+    ekoparty: {
+      title: 'Ekoparty Miami 2026',
+      body: [
+        'A live presentation of wpair-cli, my scanner for the Whisper Pair Bluetooth vulnerability (CVE-2025-36911), at the Cyber Tamago space.',
+        '22 May 2026 · Mini 1 stage, 1:30 pm, Miami.',
+      ],
+      tags: ['Security', 'Bluetooth', 'Live demo'],
+      links: [
+        { label: 'Schedule', href: EKOPARTY_SCHEDULE },
+        { label: 'wpair-cli', href: repo('wpair-cli') },
+      ],
+    },
   },
   items: {
+    nerdearla: { name: 'Speaker badge · Nerdearla 2026', desc: 'Talk with Juan Ignacio Llaberia on when classic ML beats LLMs, Buenos Aires, Sep 2026.', hint: 'Auditorium.' },
+    ekoparty: { name: 'Speaker badge · Ekoparty Miami 2026', desc: 'Live presentation of wpair-cli (CVE-2025-36911), May 2026.', hint: 'Auditorium.' },
     keycard: { name: 'CEO keycard · Punto Medio', desc: 'Co-founder and CEO since May 2025.', hint: 'Somewhere in the Punto Medio core.' },
     berkeley: {
       name: 'Hackathon trophy · UC Berkeley',

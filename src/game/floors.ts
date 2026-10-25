@@ -122,6 +122,13 @@ const FLOORS: Record<Theme, (ctx: Ctx, x: number, y: number, cx: number, cy: num
       for (let i = 5; i < 28; i += 4) for (let j = 5; j < 28; j += 4) R(ctx, x + i, y + j, 1, 1, '#3a3d52');
     }
   },
+  stage(ctx, x, y, cx, cy) {
+    // Theatre carpet
+    R(ctx, x, y, 32, 32, '#3a1b2c');
+    for (let i = 0; i < 32; i += 8) {
+      for (let j = 0; j < 32; j += 8) R(ctx, x + i + ((j / 8) % 2) * 4, y + j + 3, 2, 2, (cx + cy) % 3 ? '#4d2539' : '#6b2f45');
+    }
+  },
   logs(ctx, x, y, cx, cy) {
     R(ctx, x, y, 32, 32, '#4a5878');
     R(ctx, x + 1, y + 1, 30, 30, '#5b6c8f');
@@ -146,6 +153,7 @@ const TRIM: Record<Theme, [string, string]> = {
   trophy: ['#c9a227', '#8a6c12'],
   core: ['#1dc7e6', '#11131c'],
   logs: ['#3f4b66', '#2d3750'],
+  stage: ['#c9a227', '#8a6c12'],
 };
 
 function trim(ctx: Ctx, theme: Theme, x: number, y: number, w: number, h: number, along: 'h' | 'v') {
@@ -307,6 +315,21 @@ const WALLS: Record<Theme, Wall> = {
       }
     },
   },
+  stage: {
+    body: '#8a1c2b',
+    cap: '#c9a227',
+    side: '#6b1421',
+    lip: '#4f0f19',
+    detail(ctx, x, top) {
+      // Velvet curtain folds and a gold valance
+      for (let i = 0; i < 32; i += 6) {
+        R(ctx, x + i, top + 6, 2, WALL - 6, '#6b1421');
+        R(ctx, x + i + 3, top + 6, 1, WALL - 6, '#a8283a');
+      }
+      R(ctx, x, top + 3, 32, 4, '#c9a227');
+      for (let i = 2; i < 32; i += 6) R(ctx, x + i, top + 7, 2, 2, '#c9a227');
+    },
+  },
   logs: {
     body: '#d9d2c3',
     cap: '#b8b0a0',
@@ -341,6 +364,31 @@ function paintDecor(ctx: Ctx, d: Decor, all: Decor[]) {
     disc(ctx, px + pw / 2, py + ph / 2, ph / 2 - 12, ph / 2 - 12, '#5a1622');
     disc(ctx, px + pw / 2, py + ph / 2, ph / 2 - 16, ph / 2 - 16, '#4a4d5e');
     line(ctx, px + pw / 2 - 18, py + ph / 2 - 18, px + pw / 2 + 18, py + ph / 2 + 18, '#5a1622');
+    return;
+  }
+  if (d.kind === 'stage') {
+    // Wooden stage with a raised front edge and footlights
+    for (let j = 0; j < ph; j += 8) {
+      R(ctx, px, py + j, pw, 8, (j / 8) % 2 ? '#a8714a' : '#9a6542');
+      R(ctx, px, py + j + 7, pw, 1, '#6b4430');
+    }
+    R(ctx, px, py + ph - 6, pw, 6, '#4a2e20');
+    R(ctx, px, py + ph - 6, pw, 1, '#c08a5c');
+    for (let i = 10; i < pw; i += 24) {
+      R(ctx, px + i, py + ph - 5, 4, 3, '#f5b62a');
+      R(ctx, px + i + 1, py + ph - 4, 2, 1, '#f3fff4');
+    }
+    return;
+  }
+  if (d.kind === 'seats') {
+    // A row of theatre seats, seen from above: backs at the top, cushions below
+    for (let i = 0; i < pw; i += 16) {
+      R(ctx, px + i + 1, py + 4, 14, 24, '#1f1d2c');
+      R(ctx, px + i + 2, py + 5, 12, 7, '#6b1421');
+      R(ctx, px + i + 2, py + 12, 12, 14, '#a8283a');
+      R(ctx, px + i + 3, py + 14, 10, 2, '#c43a4c');
+      R(ctx, px + i, py + 12, 1, 14, '#c9a227');
+    }
     return;
   }
   if (d.kind === 'rug') {

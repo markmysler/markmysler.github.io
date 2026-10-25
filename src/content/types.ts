@@ -35,7 +35,7 @@ export interface CvProject {
   link?: Link;
 }
 
-export type RoomId = 'hub' | 'nav' | 'workshop' | 'training' | 'arcade' | 'vault' | 'trophy' | 'core' | 'logs' | 'corridor';
+export type RoomId = 'hub' | 'nav' | 'workshop' | 'training' | 'arcade' | 'vault' | 'trophy' | 'core' | 'logs' | 'stage' | 'corridor';
 
 export type ObjectId =
   | 'guide'
@@ -76,7 +76,9 @@ export type ObjectId =
   | 'snakegame'
   | 'slots'
   | 'chromle'
-  | 'simon';
+  | 'simon'
+  | 'nerdearla'
+  | 'ekoparty';
 
 /** Collectibles you win in the mini-games, separate from the CV items. */
 export type PrizeId = 'apple' | 'prism' | 'seven' | 'signal';
@@ -93,7 +95,9 @@ export type ItemId =
   | 'logbook'
   | 'ub'
   | 'rotary'
-  | 'itba';
+  | 'itba'
+  | 'nerdearla'
+  | 'ekoparty';
 
 export interface Content {
   lang: Lang;

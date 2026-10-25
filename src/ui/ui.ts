@@ -11,8 +11,8 @@ import { mountSnake } from './games/snake';
 import type { MountGame } from './games/types';
 import { candidates } from './markov';
 
-const ITEM_ORDER: ItemId[] = ['keycard', 'berkeley', 'pathfinder', 'pokedex', 'snake', 'cc', 'fohd', 'tecnokids', 'logbook', 'ub', 'rotary', 'itba'];
-const ROOM_ORDER: RoomId[] = ['hub', 'nav', 'workshop', 'training', 'arcade', 'core', 'logs', 'vault', 'trophy'];
+const ITEM_ORDER: ItemId[] = ['keycard', 'berkeley', 'nerdearla', 'ekoparty', 'pathfinder', 'pokedex', 'snake', 'cc', 'fohd', 'tecnokids', 'logbook', 'ub', 'rotary', 'itba'];
+const ROOM_ORDER: RoomId[] = ['hub', 'nav', 'workshop', 'training', 'arcade', 'core', 'stage', 'logs', 'vault', 'trophy'];
 const PRIZE_ORDER: PrizeId[] = ['apple', 'prism', 'seven', 'signal'];
 const GAMES: Partial<Record<ObjectId, [MountGame, PrizeId]>> = {
   snakegame: [mountSnake, 'apple'],

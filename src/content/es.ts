@@ -1,4 +1,4 @@
-import { EMAIL, GITHUB, LINKEDIN, PATHFINDER, POKEDEX, PUNTO_MEDIO, SNAKE_DEMO, cvHref, repo } from './links';
+import { EKOPARTY_SCHEDULE, EMAIL, GITHUB, LINKEDIN, NERDEARLA_SPEAKER, NERDEARLA_VIDEO, PATHFINDER, POKEDEX, PUNTO_MEDIO, SNAKE_DEMO, cvHref, repo } from './links';
 import type { Content } from './types';
 
 export const es: Content = {
@@ -108,6 +108,7 @@ export const es: Content = {
     trophy: 'Sala de trofeos',
     core: 'Núcleo de Punto Medio',
     logs: 'Bitácoras',
+    stage: 'Auditorio',
     corridor: 'Pasillo',
   },
   labels: {
@@ -150,6 +151,8 @@ export const es: Content = {
     slots: 'Tragamonedas',
     chromle: 'Chromle',
     simon: 'Signal',
+    nerdearla: 'Nerdearla',
+    ekoparty: 'Ekoparty',
   },
   objects: {
     guide: {
@@ -177,7 +180,7 @@ export const es: Content = {
     directory: {
       title: 'Mapa de la estación',
       body: [
-        'Al norte: la Cubierta de navegación (Pathfinder) y, más allá, el Taller. Al este: el núcleo de Punto Medio, con las Bitácoras abajo. Al sur: la Bóveda de seguridad y después la Sala de trofeos. Al oeste: el Arcade, con la Sala de entrenamiento arriba.',
+        'Al norte: la Cubierta de navegación (Pathfinder) y, más allá, el Taller. Al este: el núcleo de Punto Medio, con las Bitácoras abajo y, detrás, el Auditorio con mis charlas. Al sur: la Bóveda de seguridad y después la Sala de trofeos. Al oeste: el Arcade, con la Sala de entrenamiento arriba.',
         'Tocá M o hacé clic en el minimapa para ver el mapa completo. Elegí una sala y el piloto automático A* te lleva.',
       ],
     },
@@ -420,8 +423,34 @@ export const es: Content = {
       title: 'Signal',
       body: ['Un juego de memoria en el espíritu de las clases que daba: mirá la secuencia y repetila.'],
     },
+    nerdearla: {
+      title: 'Nerdearla Argentina 2026',
+      body: [
+        '"Tu problema no necesita un LLM (y tu factura tampoco)": una charla junto a Juan Ignacio Llaberia sobre cuándo el machine learning clásico le gana a los LLMs en costo y latencia, y cómo combinarlos en arquitecturas híbridas.',
+        '24 de septiembre de 2026 · Gran Sala, Centro Cultural Konex, Buenos Aires.',
+      ],
+      tags: ['Machine learning', 'LLMs', 'Arquitectura'],
+      links: [
+        { label: 'Ver la charla', href: NERDEARLA_VIDEO },
+        { label: 'Página del orador', href: NERDEARLA_SPEAKER },
+      ],
+    },
+    ekoparty: {
+      title: 'Ekoparty Miami 2026',
+      body: [
+        'Una presentación en vivo de wpair-cli, mi escáner para la vulnerabilidad Bluetooth Whisper Pair (CVE-2025-36911), en el espacio de Cyber Tamago.',
+        '22 de mayo de 2026 · escenario Mini 1, 13:30, Miami.',
+      ],
+      tags: ['Seguridad', 'Bluetooth', 'Demo en vivo'],
+      links: [
+        { label: 'Agenda', href: EKOPARTY_SCHEDULE },
+        { label: 'wpair-cli', href: repo('wpair-cli') },
+      ],
+    },
   },
   items: {
+    nerdearla: { name: 'Credencial de orador · Nerdearla 2026', desc: 'Charla junto a Juan Ignacio Llaberia sobre cuándo el ML clásico le gana a los LLMs, Buenos Aires, sep. 2026.', hint: 'Auditorio.' },
+    ekoparty: { name: 'Credencial de orador · Ekoparty Miami 2026', desc: 'Presentación en vivo de wpair-cli (CVE-2025-36911), may. 2026.', hint: 'Auditorio.' },
     keycard: { name: 'Tarjeta de CEO · Punto Medio', desc: 'Cofundador y CEO desde mayo de 2025.', hint: 'En algún lugar del núcleo de Punto Medio.' },
     berkeley: {
       name: 'Trofeo de hackathon · UC Berkeley',

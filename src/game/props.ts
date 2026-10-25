@@ -686,6 +686,60 @@ const PROPS: Record<string, [number, number, (ctx: Ctx) => void]> = {
       for (let y = 12; y < 24; y += 2) R(ctx, 56 + ((y / 2) % 2) * 2, y, 2, 2, 'w');
     },
   ],
+  // Auditorium
+  nerdearla: [
+    64,
+    58,
+    (ctx) => {
+      shadow(ctx, 32, 58, 22);
+      // Projection screen on a stand, showing the talk's point: skip the LLM, save the bill
+      line(ctx, 32, 38, 32, 54, 'k');
+      line(ctx, 32, 54, 22, 57, 'k');
+      line(ctx, 32, 54, 42, 57, 'k');
+      R(ctx, 0, 2, 64, 4, 'k');
+      R(ctx, 1, 3, 62, 2, 'x');
+      box(ctx, 2, 6, 60, 34, 'w');
+      R(ctx, 3, 7, 58, 5, 'J');
+      R(ctx, 6, 9, 22, 1, 'w');
+      box(ctx, 8, 16, 16, 16, 'l');
+      for (let i = 10; i < 24; i += 4) {
+        R(ctx, i, 14, 2, 2, 'k');
+        R(ctx, i, 32, 2, 2, 'k');
+      }
+      R(ctx, 12, 21, 8, 6, 'n');
+      line(ctx, 6, 14, 26, 34, 'r');
+      line(ctx, 7, 14, 27, 34, 'r');
+      line(ctx, 26, 14, 6, 34, 'r');
+      line(ctx, 27, 14, 7, 34, 'r');
+      [14, 11, 8, 5].forEach((h, i) => R(ctx, 34 + i * 6, 34 - h * 1.4, 4, h * 1.4, 'g'));
+      R(ctx, 33, 34, 26, 1, 'k');
+    },
+  ],
+  ekoparty: [
+    32,
+    54,
+    (ctx) => {
+      shadow(ctx, 16, 54, 12);
+      // Demo lectern: laptop running the scanner, a mic, a Bluetooth signal
+      R(ctx, 5, 24, 22, 29, 'k');
+      R(ctx, 6, 25, 20, 27, 'B');
+      R(ctx, 8, 30, 16, 14, 'T');
+      R(ctx, 10, 34, 12, 2, 'g');
+      R(ctx, 3, 22, 26, 3, 'k');
+      R(ctx, 4, 22, 24, 2, 'T');
+      box(ctx, 8, 10, 16, 12, 'k');
+      R(ctx, 9, 11, 14, 9, 'G');
+      for (let y = 12; y < 19; y += 2) R(ctx, 10, y, 4 + ((y * 5) % 8), 1, 'g');
+      R(ctx, 6, 20, 20, 2, 'l');
+      line(ctx, 26, 22, 28, 12, 'k');
+      R(ctx, 27, 9, 3, 4, 'x');
+      line(ctx, 3, 6, 6, 9, 'c');
+      line(ctx, 6, 9, 3, 12, 'c');
+      line(ctx, 1, 3, 5, 8, 'c');
+    },
+  ],
+  'badge-nerdearla': [12, 18, (ctx) => badge(ctx, 'm', 'c')],
+  'badge-ekoparty': [12, 18, (ctx) => badge(ctx, 'g', 'y')],
   // Workshop and Training bay games
   chromle: [
     64,
@@ -721,6 +775,17 @@ const PROPS: Record<string, [number, number, (ctx: Ctx) => void]> = {
     },
   ],
 };
+
+/** A speaker badge on a lanyard. */
+function badge(ctx: Ctx, strap: string, accent: string) {
+  line(ctx, 2, 0, 5, 6, strap);
+  line(ctx, 9, 0, 6, 6, strap);
+  box(ctx, 1, 6, 10, 12, 'w');
+  R(ctx, 2, 7, 8, 3, accent);
+  R(ctx, 3, 11, 3, 3, 'h');
+  R(ctx, 7, 12, 3, 1, 'k');
+  R(ctx, 3, 15, 6, 1, 'x');
+}
 
 /** Arcade cabinet front: marquee, screen, controls, coin door. */
 function cabinet(ctx: Ctx, body: string, screen: string) {

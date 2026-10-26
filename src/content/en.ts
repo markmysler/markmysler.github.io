@@ -11,7 +11,7 @@ export const en: Content = {
   headline: 'Backend & security engineer · Co-founder & CEO, Punto Medio',
   location: 'Buenos Aires, Argentina',
   title: {
-    tagline: 'A small station inside my head. Every room is something I built.',
+    tagline: 'Walk around. Everything here is something I built.',
     enter: 'Enter the station',
     quick: 'Quick view',
     otherLang: 'Español',

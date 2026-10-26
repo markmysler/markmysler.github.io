@@ -634,28 +634,21 @@ const PROPS: Record<string, [number, number, (ctx: Ctx) => void]> = {
     160,
     128,
     (ctx) => {
-      shadow(ctx, 80, 128, 74);
-      R(ctx, 10, 112, 6, 14, 'k');
-      R(ctx, 144, 112, 6, 14, 'k');
+      shadow(ctx, 80, 128, 76);
+      // Steel frame, dark glass, a plaque for the score and a solid cabinet base
       R(ctx, 4, 2, 152, 112, 'k');
       R(ctx, 6, 4, 148, 108, 'x');
-      R(ctx, 10, 8, 140, 100, 'J');
-      R(ctx, 12, 10, 136, 96, 'k');
-      // Gravel along the bottom of the glass
-      for (let x = 12; x < 148; x += 3) R(ctx, x, 104 - ((x * 7) % 3), 2, 2, (x * 3) % 2 ? 'T' : 'B');
-      R(ctx, 4, 2, 152, 5, 'l');
+      R(ctx, 4, 2, 152, 4, 'l');
       R(ctx, 4, 2, 152, 1, 'W');
-      for (const x of [8, 150]) for (const y of [5, 109]) R(ctx, x, y, 2, 2, 'W');
-      for (const [x, y, r] of [
-        [140, 30, 2],
-        [143, 20, 1.5],
-        [138, 12, 1],
-      ]) {
-        disc(ctx, x, y, r, r, 'c');
-      }
-      ctx.globalAlpha = 0.25;
-      line(ctx, 18, 92, 40, 14, 'w');
-      ctx.globalAlpha = 1;
+      R(ctx, 10, 8, 140, 94, 'J');
+      R(ctx, 12, 10, 136, 90, 'k');
+      R(ctx, 30, 103, 100, 9, 'n');
+      R(ctx, 30, 103, 100, 1, 'l');
+      for (const x of [8, 150]) for (const y of [6, 108]) R(ctx, x, y, 2, 2, 'W');
+      R(ctx, 2, 112, 156, 14, 'k');
+      R(ctx, 4, 113, 152, 11, 'n');
+      R(ctx, 4, 113, 152, 2, 'x');
+      R(ctx, 74, 117, 12, 4, 'k');
     },
   ],
   mat: [

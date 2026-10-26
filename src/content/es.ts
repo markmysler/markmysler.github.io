@@ -11,7 +11,7 @@ export const es: Content = {
   headline: 'Ingeniero backend y de seguridad · Cofundador y CEO, Punto Medio',
   location: 'Buenos Aires, Argentina',
   title: {
-    tagline: 'Una pequeña estación dentro de mi cabeza. Cada sala es algo que construí.',
+    tagline: 'Recorré la estación. Todo lo que hay acá lo construí yo.',
     enter: 'Entrar a la estación',
     quick: 'Vista rápida',
     otherLang: 'English',
